@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from collections import namedtuple
 from random import random
+import plotly.express as px
 
 from minersim import simulate
 
@@ -17,7 +18,7 @@ Module = namedtuple("Module", ["name", "path", "min", "max"])
 
 default("Miner Level", 6)
 
-miner_img_paths = [f"Hades Star/Img/MS{x}.webp" for x in range(0, 8)]
+miner_img_paths = [f"Img/MS{x}.webp" for x in range(0, 8)]
 
 module_inputs = [
     Module("Mining Boost", "MiningBoost", 0, 15),
@@ -48,7 +49,7 @@ for _ in range(3):
                 if mod.name == "Miner Level":
                     st.image(miner_img_paths[st.session_state["Miner Level"]])
                 else:
-                    st.image(f"Hades Star/Img/{mod.path}.webp")
+                    st.image(f"Img/{mod.path}.webp")
             with field:
                 module_values[modnum] = st.number_input(
                     mod.name, min_value=mod.min, max_value=mod.max, step=1, format="%d",
@@ -60,7 +61,7 @@ with middle:
     img, field = st.columns([1, 5], vertical_alignment="center")
     mod = module_inputs[-1]
     with img:
-        st.image(f"Hades Star/Img/{mod.path}.webp")
+        st.image(f"Img/{mod.path}.webp")
     with field:
         module_values[modnum] = st.number_input(
             mod.name, min_value=mod.min, max_value=mod.max, step=1, format="%d", key=mod.name)
@@ -68,12 +69,13 @@ with middle:
 
 default("output", None)
 default("log", None)
+default("field", None)
 
 
 def get_simulation_results():
     if any([st.session_state[mod.name] is None for mod in module_inputs]):
         return
-    st.session_state["output"], st.session_state["log"] = simulate(
+    st.session_state["output"], st.session_state["log"], st.session_state["field"] = simulate(
         st.session_state["DRS Level"],
         st.session_state["Genesis"],
         st.session_state["Enrich"],
@@ -90,16 +92,84 @@ st.button("Simulate!", on_click=get_simulation_results)
 
 st.warning("Warning: Crunch is currently unsupported by the mining simulation", icon="⚠️")
 
+default("DRS Time", 10)
+
 if st.session_state["output"] is not None and st.session_state["log"] is not None:
     st.write(st.session_state["output"])
+    df = st.session_state["log"]
 
-    if not st.session_state["log"].empty:
+    if not df.empty:
         st.line_chart(
-            data=st.session_state["log"][["Time", "Total Hydro", "Max Hydro"]],
-            x="Time", x_label="Time after 2nd genrich (sconds)",
-            y="Hydrogen"
+            data=df[["Time", "Total Hydro", "Max Hydro"]],
+            x="Time", x_label="Time after 2nd genrich (seconds)",
+            y_label="Hydrogen"
         )
 
-        st.bar_chart()
+        st.session_state["DRS Time"] = st.slider(
+            "DRS Time (seconds)", min_value=0, max_value=df["Time"].values[-1],
+            value=0, step=10, format="%d", key="Bar Slider"
+        )
+        # NB: Putting the slider after the bar chart led to a one tick delay
 
-        st.session_state["time"] = st.slider("DRS Time")
+        roid_cols = [f"r{x:02}" for x in range(1, 15)]
+
+        # st.write(df[df["Time"] == st.session_state["DRS Time"]][roid_cols].T)
+
+        # st.bar_chart(df[df["Time"] == st.session_state["DRS Time"]][roid_cols].T)
+
+
+# Plotly demo
+Z = st.slider("Number of Ensembles", min_value=10, max_value=50, value=20, step=10)
+frames = st.slider("Number of Frames", min_value=10, max_value=100, value=20, step=10)
+
+N = 50  
+x = np.linspace(0, 2 * np.pi, 40)
+y = np.array([np.sin(x + phase*Z) for phase in np.linspace(0, 2 * np.pi, N)])
+
+df = pd.DataFrame({
+    'x': np.tile(x, N * frames),
+    'y': np.sin(np.tile(x, N * frames) + np.repeat(np.linspace(0, 2 * np.pi, frames), N * 40)),
+    'line_id': np.repeat(np.arange(N), 40 * frames),
+    'frame_id': np.repeat(np.arange(frames), N * 40)
+})
+
+fig = px.line(df, x='x', y='y', animation_frame='frame_id', animation_group='line_id', 
+              line_group='line_id', color='line_id')
+
+fig.update_layout(
+    title="Animated Line Plot",
+    xaxis_title="X Axis",
+    yaxis_title="Y Axis",
+    showlegend=False
+)
+
+st.plotly_chart(fig)
+
+# st.write(px.data.gapminder())
+# st.write(px.data.medals_long())
+
+if st.session_state["field"] is not None:
+    barfig = px.bar(st.session_state["field"], x="Roid", y=["Remaining", "Pulled"], animation_frame="Time", range_y=[0, 1500])
+
+    # Custom animation speed
+    barfig.layout.updatemenus[0].buttons[0].args[1]['frame']['duration'] = 120
+
+    barfig.update_layout(
+        title="Animated asteroid values",
+        xaxis_title="Asteroids",
+        yaxis_title="Hydrogen"
+    )
+    # TODO: change bar colors
+    # TODO: add textures for currently draining roids?
+
+    # TODO: Add hline for max amount
+    # TODO: Add hline for re-enrich amount
+
+    # TODO: fix legend names
+
+    st.plotly_chart(barfig)
+
+# wide_df = px.data.medals_wide()
+
+# fig = px.bar(wide_df, x="nation", y=["gold", "silver", "bronze"], title="Wide-Form Input", )
+# fig

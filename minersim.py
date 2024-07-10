@@ -32,7 +32,8 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
     boostqty: int at least 1
     tick_len: int as a positive factor of 60
 
-    Returns the output of the simulation and a DataFrame of each simulated step
+    Returns the output of the simulation, a DataFrame containing the summary of each simulated step,
+    and a DataFrame of the detailed asteroid values at each simulated step.
     """
     # Randomly generate hydro roid values
     # Assuming uniformly generated values within 10% of the average hydro value in sector
@@ -50,10 +51,13 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
         targets = sorted(enumerate(roidlist), key=lambda x: x[1], reverse=True)
         return [t[0] for t in targets][:REMOTE[remotelv]]
     
-    def tick(roidlist, rmtargets):
+    def tick(roidlist, pulledlist, rmtargets):
         return [
             roidlist[i] - drain if i in rmtargets else roidlist[i]
             for i in range(len(roidlist))
+        ], [
+            pulledlist[i] + drain if i in rmtargets else pulledlist[i]
+            for i in range(len(pulledlist))
         ]
     
     def incr_to_dur(incr):
@@ -68,7 +72,8 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
             f"DRS{drslv} starting with random roid sizes {base_roids} totalling {sum(base_roids)}h",
             f"Mining delayed until {incr_to_dur(delay)} after 2nd genrich"
         ]
-        log = []
+        sim_log = []
+        field = []
 
         roids = base_roids[:]
 
@@ -82,6 +87,8 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
         roids = enrich(roids)
         output.append(f"2nd Genrich leaves {sum(roids)} total hydro")
 
+        pulled = [0 for _ in roids]
+
         # Simulate
         incr = 0
         tank = 0
@@ -93,8 +100,11 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
             # Mine
             if incr >= delay:
                 tank += drain * REMOTE[remotelv]
-                roids = tick(roids, targets)
+                roids, pulled = tick(roids, pulled, targets)
             incr += tick_len
+            sim_log.append([incr, boosts, tank/minerqty, sum(roids)])
+            for i in range(14):
+                field.append([incr, f"r{i:02}", roids[i], pulled[i]])
             # Boost and move
             if tank >= AB[ablv] * minerqty:
                 tank -= AB[ablv] * minerqty
@@ -104,13 +114,13 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
             if incr % 300 == 0:
                 roids = enrich(roids)
                 output.append(f"Enriched to {sum(roids)} total hydro")
-            # Log details
-            log.append([incr] + [boosts] + [tank/minerqty] + roids)
+                pulled = [0 for _ in roids]
+                sim_log.append([incr, boosts, tank/minerqty, sum(roids)])
             # Checks
             if min(roids) <= 0:
                 break
             if boosts >= boostqty:
-                output.append(f"Target of {boostqty} boosts reached at {incr_to_dur(incr)} after 2nd genrich")
+                output.append(f"Target of {boosts} boosts reached at {incr_to_dur(incr)} after 2nd genrich")
                 break
         
         # Check if longer delay needed
@@ -118,13 +128,14 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
             delay += tick_len
             continue
         
-        # Create log df
-        status_cols = ["Time", "Boosts", "Tank"]
-        roid_cols = [f"r{x}" for x in range(1, 15)]
-        log = df.from_records(log, columns=status_cols+roid_cols)
-        log["Total Hydro"] = log[roid_cols].sum(axis=1)
-        log["Max Hydro"] = 21000
-        return output, log
+        # Create dfs
+        sim_log_cols = ["Time", "Boosts", "Tank", "Total Hydro"]
+        sim_log = df.from_records(sim_log, columns=sim_log_cols)
+        sim_log["Max Hydro"] = 21000
+        field_cols = ["Time", "Roid", "Remaining", "Pulled"]
+        field = df.from_records(field, columns=field_cols)
+
+        return output, sim_log, field
     
     # Failed simulation
     output = [
@@ -133,7 +144,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
         f"DRS{drslv} starting with random roid sizes {roids} totalling {sum(roids)}h",
         f"Simulation failed with given parameters!"
     ]
-    return output, df()
+    return output, df(), df()
 
 
 if __name__ == "__main__":
