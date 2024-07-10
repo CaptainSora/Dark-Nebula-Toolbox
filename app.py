@@ -39,23 +39,23 @@ def default(label, initvalue):
     if label not in st.session_state:
         st.session_state[label] = initvalue
 
-Module = namedtuple("Module", ["name", "path", "min", "max"])
+Module = namedtuple("Module", ["name", "path", "min", "max", "init"])
 
 default("Miner Level", 6)
 
 miner_img_paths = [f"Img/MS{x}.webp" for x in range(0, 8)]
 
 module_inputs = [
-    Module("Mining Boost", "MiningBoost", 0, 15),
-    Module("Remote Mining", "RemoteMining", 1, 15),
-    Module("Crunch", "Crunch", 0, 15),
-    Module("Genesis", "Genesis", 0, 15),
-    Module("Enrich", "Enrich", 0, 15),
-    Module("Artifact Boost", "ArtifactBoost", 1, 15),
-    Module("DRS Level", "RedStar", 7, 12),
-    Module("Miner Level", "", 1, 7),
-    Module("Miner Quantity", "MS6", 1, 4),
-    Module("Target Number of Boosts", "ArtifactBoost", 1, 25)
+    Module("Mining Boost", "MiningBoost", 0, 15, 11),
+    Module("Remote Mining", "RemoteMining", 1, 15, 9),
+    Module("Crunch", "Crunch", 0, 15, 0),
+    Module("Genesis", "Genesis", 0, 15, 13),
+    Module("Enrich", "Enrich", 0, 15, 11),
+    Module("Artifact Boost", "ArtifactBoost", 1, 15, 13),
+    Module("DRS Level", "RedStar", 7, 12, 10),
+    Module("Miner Level", "", 1, 7, 6),
+    Module("Miner Quantity", "MS6", 1, 4, 2),
+    Module("Target Number of Boosts", "ArtifactBoost", 1, 25, 18)
 ]
 
 def change_mod_levels():
@@ -78,7 +78,7 @@ for _ in range(3):
             with field:
                 module_values[modnum] = st.number_input(
                     mod.name, min_value=mod.min, max_value=mod.max, step=1, format="%d",
-                    key=mod.name, on_change=change_mod_levels)
+                    value=mod.init, key=mod.name, on_change=change_mod_levels)
         modnum += 1
 
 _, middle, _ = st.columns([1, 2, 1], gap="small")
@@ -89,7 +89,8 @@ with middle:
         st.image(f"Img/{mod.path}.webp")
     with field:
         module_values[modnum] = st.number_input(
-            mod.name, min_value=mod.min, max_value=mod.max, step=1, format="%d", key=mod.name)
+            mod.name, min_value=mod.min, max_value=mod.max, step=1, format="%d",
+            value=mod.init, key=mod.name, on_change=change_mod_levels)
 
 
 default("output", None)
