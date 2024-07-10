@@ -12,13 +12,6 @@ MINER = [0, 6, 7.5, 12, 24, 60, 80, 92.3]
 HMAX = 1500
 DRSHYDRO = [0, 0, 0, 0, 0, 0, 0, 400, 500, 600, 700, 800, 900]
 
-## TODO
-# - Sanity check miner lv vs AB lv
-# - Learn about crunch mechanics
-# - Start timer at start of DRS
-#   - Take input on when first genrich is?
-# - Help text on inputs
-
 
 def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, boostqty, tick_len=10):
     """
@@ -132,7 +125,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
         sim_log_cols = ["Time", "Boosts", "Tank", "Total Hydro"]
         sim_log = df.from_records(sim_log, columns=sim_log_cols)
         sim_log["Max Hydro"] = 21000
-        field_cols = ["Time", "Roid", "Remaining", "Pulled"]
+        field_cols = ["Time", "Roid", "Remaining", "Previous Enrich"]
         field = df.from_records(field, columns=field_cols)
 
         return output, sim_log, field
@@ -145,10 +138,3 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
         f"Simulation failed with given parameters!"
     ]
     return output, df(), df()
-
-
-if __name__ == "__main__":
-    # output, log = simulate(10, 13, 11, 13, 11, 9, 6, 2, 18)
-    output, log = simulate(9, 13, 12, 12, 10, 10, 5, 3, 15)
-    for line in output:
-        print(line)

@@ -7,6 +7,31 @@ import plotly.express as px
 
 from minersim import simulate
 
+
+"""
+TODO:
+- Tab icon
+- Page menu
+    - Help: maybe an email link or google form?
+    - Bug: Google form
+    - About: Discord contact
+- Sanity check miner lv vs AB lv
+- Learn about crunch mechanics
+- Start timer at start of DRS
+    - Take input on when first genrich is?
+    - Need an enrich timer as well
+- Help text on inputs
+"""
+
+
+st.set_page_config(
+    page_title="DRS Mining Simulator",
+    menu_items={
+        "Get help": None,
+        "Report a Bug": None,
+        "About": None
+    }
+)
 st.title("DRS Mining Simulator")
 
 
@@ -149,7 +174,9 @@ st.plotly_chart(fig)
 # st.write(px.data.medals_long())
 
 if st.session_state["field"] is not None:
-    barfig = px.bar(st.session_state["field"], x="Roid", y=["Remaining", "Pulled"], animation_frame="Time", range_y=[0, 1500])
+    barfig = px.bar(
+        st.session_state["field"], x="Roid", y=["Remaining", "Previous Enrich"],
+        animation_frame="Time", range_y=[0, 1500])
 
     # Custom animation speed
     barfig.layout.updatemenus[0].buttons[0].args[1]['frame']['duration'] = 120
