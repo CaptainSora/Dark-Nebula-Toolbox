@@ -58,7 +58,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
 
     delay = 0
     # Prepare simulation to see if delay is sufficient
-    while delay <= 5 * 60:
+    while delay <= 10 * 60 + tick_len:
         output = [
             f"Genrich {genlv}/{enrlv}, AB {ablv}",
             f"{minerqty}x Miner {minerlv} at {mboostlv}/{remotelv} targeting {boostqty} boosts",
@@ -134,7 +134,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
     output = [
         f"Genrich {genlv}/{enrlv}, AB {ablv}",
         f"{minerqty}x Miner {minerlv} at {mboostlv}/{remotelv} targeting {boostqty} boosts",
-        f"DRS{drslv} starting with random roid sizes {roids} totalling {sum(roids)}h",
+        f"DRS{drslv} starting with random roid sizes {base_roids} totalling {sum(base_roids)}h",
         f"Simulation failed with given parameters!"
     ]
     return output, df(), df()
