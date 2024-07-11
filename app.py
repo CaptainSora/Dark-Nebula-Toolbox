@@ -8,20 +8,19 @@ import plotly.express as px
 from minersim import simulate
 
 
-"""
-TODO:
-- Tab icon
-- Page menu
-    - Help: maybe an email link or google form?
-    - Bug: Google form
-    - About: Discord contact
-- Sanity check miner lv vs AB lv
-- Learn about crunch mechanics
-- Start timer at start of DRS
-    - Take input on when first genrich is?
-    - Need an enrich timer as well
-- Help text on inputs
-"""
+# TODO:
+# Tab icon
+# Page menu
+#   Help: maybe an email link or google form?
+#   Bug: Google form
+#   About: Discord contact
+# Sanity check miner lv vs AB lv
+# Learn about crunch mechanics
+# Start timer at start of DRS
+#   Take input on when first genrich is?
+#   Need an enrich timer as well
+# Help text on inputs
+# Below Line chart, show actions at current time step? (Link to slider)
 
 
 st.set_page_config(
@@ -131,13 +130,13 @@ if st.session_state["output"] is not None and st.session_state["log"] is not Non
             y_label="Hydrogen"
         )
 
-        st.session_state["DRS Time"] = st.slider(
-            "DRS Time (seconds)", min_value=0, max_value=df["Time"].values[-1],
-            value=0, step=10, format="%d", key="Bar Slider"
-        )
+        # st.session_state["DRS Time"] = st.slider(
+        #     "DRS Time (seconds)", min_value=0, max_value=df["Time"].values[-1],
+        #     value=0, step=10, format="%d", key="Bar Slider"
+        # )
         # NB: Putting the slider after the bar chart led to a one tick delay
 
-        roid_cols = [f"r{x:02}" for x in range(1, 15)]
+        # roid_cols = [f"r{x:02}" for x in range(1, 15)]
 
         # st.write(df[df["Time"] == st.session_state["DRS Time"]][roid_cols].T)
 
@@ -145,31 +144,31 @@ if st.session_state["output"] is not None and st.session_state["log"] is not Non
 
 
 # Plotly demo
-Z = st.slider("Number of Ensembles", min_value=10, max_value=50, value=20, step=10)
-frames = st.slider("Number of Frames", min_value=10, max_value=100, value=20, step=10)
+# Z = st.slider("Number of Ensembles", min_value=10, max_value=50, value=20, step=10)
+# frames = st.slider("Number of Frames", min_value=10, max_value=100, value=20, step=10)
 
-N = 50  
-x = np.linspace(0, 2 * np.pi, 40)
-y = np.array([np.sin(x + phase*Z) for phase in np.linspace(0, 2 * np.pi, N)])
+# N = 50  
+# x = np.linspace(0, 2 * np.pi, 40)
+# y = np.array([np.sin(x + phase*Z) for phase in np.linspace(0, 2 * np.pi, N)])
 
-df = pd.DataFrame({
-    'x': np.tile(x, N * frames),
-    'y': np.sin(np.tile(x, N * frames) + np.repeat(np.linspace(0, 2 * np.pi, frames), N * 40)),
-    'line_id': np.repeat(np.arange(N), 40 * frames),
-    'frame_id': np.repeat(np.arange(frames), N * 40)
-})
+# df = pd.DataFrame({
+#     'x': np.tile(x, N * frames),
+#     'y': np.sin(np.tile(x, N * frames) + np.repeat(np.linspace(0, 2 * np.pi, frames), N * 40)),
+#     'line_id': np.repeat(np.arange(N), 40 * frames),
+#     'frame_id': np.repeat(np.arange(frames), N * 40)
+# })
 
-fig = px.line(df, x='x', y='y', animation_frame='frame_id', animation_group='line_id', 
-              line_group='line_id', color='line_id')
+# fig = px.line(df, x='x', y='y', animation_frame='frame_id', animation_group='line_id', 
+#               line_group='line_id', color='line_id')
 
-fig.update_layout(
-    title="Animated Line Plot",
-    xaxis_title="X Axis",
-    yaxis_title="Y Axis",
-    showlegend=False
-)
+# fig.update_layout(
+#     title="Animated Line Plot",
+#     xaxis_title="X Axis",
+#     yaxis_title="Y Axis",
+#     showlegend=False
+# )
 
-st.plotly_chart(fig)
+# st.plotly_chart(fig)
 
 # st.write(px.data.gapminder())
 # st.write(px.data.medals_long())
