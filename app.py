@@ -118,7 +118,7 @@ def get_simulation_results():
         st.session_state["Remote Mining"],
         st.session_state["Miner Level"],
         st.session_state["Miner Quantity"],
-        st.session_state["Target Number of Boosts"]
+        st.session_state["Target Number of Artifact Boosts"]
     )
 
 
