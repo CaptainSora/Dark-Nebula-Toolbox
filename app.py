@@ -21,6 +21,15 @@ from minersim import simulate
 #   Need an enrich timer as well
 # Help text on inputs
 # Below Line chart, show actions at current time step? (Link to slider)
+# Add warning text about random roids, to simulate a few times and take the 
+#   latest start time
+# Explain simulation assumptions
+#   e.g. mining method, "safe" h amount (no roid at 0 as a built in safety margin)
+# Change text output to have timestamps for each event
+#   Maybe this is the instructions section?
+# "How to interpret results" section ("What does this mean?")
+# Time spent breakdown (pie chart?)
+#   Or horizontal bar chart (timeline?) that shows what's going on at each moment
 
 
 st.set_page_config(
@@ -54,7 +63,7 @@ module_inputs = [
     Module("DRS Level", "RedStar", 7, 12, 10),
     Module("Miner Level", "", 1, 7, 6),
     Module("Miner Quantity", "MS6", 1, 4, 2),
-    Module("Target Number of Boosts", "ArtifactBoost", 1, 25, 18)
+    Module("Target Number of Artifact Boosts", "ArtifactBoost", 1, 25, 18)
 ]
 
 def change_mod_levels():
@@ -142,36 +151,6 @@ if st.session_state["output"] is not None and st.session_state["log"] is not Non
 
         # st.bar_chart(df[df["Time"] == st.session_state["DRS Time"]][roid_cols].T)
 
-
-# Plotly demo
-# Z = st.slider("Number of Ensembles", min_value=10, max_value=50, value=20, step=10)
-# frames = st.slider("Number of Frames", min_value=10, max_value=100, value=20, step=10)
-
-# N = 50  
-# x = np.linspace(0, 2 * np.pi, 40)
-# y = np.array([np.sin(x + phase*Z) for phase in np.linspace(0, 2 * np.pi, N)])
-
-# df = pd.DataFrame({
-#     'x': np.tile(x, N * frames),
-#     'y': np.sin(np.tile(x, N * frames) + np.repeat(np.linspace(0, 2 * np.pi, frames), N * 40)),
-#     'line_id': np.repeat(np.arange(N), 40 * frames),
-#     'frame_id': np.repeat(np.arange(frames), N * 40)
-# })
-
-# fig = px.line(df, x='x', y='y', animation_frame='frame_id', animation_group='line_id', 
-#               line_group='line_id', color='line_id')
-
-# fig.update_layout(
-#     title="Animated Line Plot",
-#     xaxis_title="X Axis",
-#     yaxis_title="Y Axis",
-#     showlegend=False
-# )
-
-# st.plotly_chart(fig)
-
-# st.write(px.data.gapminder())
-# st.write(px.data.medals_long())
 
 if st.session_state["field"] is not None:
     barfig = px.bar(
