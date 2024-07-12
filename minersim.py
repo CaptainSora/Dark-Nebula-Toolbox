@@ -111,7 +111,8 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
                 sim_log.append([incr, boosts, tank/minerqty, sum(roids)])
             # Checks
             if min(roids) <= 0:
-                output.append("At least one roid hit zero!")
+                output.append("At least one roid hit zero! This text should never be displayed")
+                break
             if boosts >= boostqty:
                 output.append(f"Target of {boosts} boosts reached at {incr_to_dur(incr)} after 2nd genrich")
                 break
