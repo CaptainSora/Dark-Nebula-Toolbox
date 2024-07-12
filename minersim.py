@@ -111,10 +111,12 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
                 sim_log.append([incr, boosts, tank/minerqty, sum(roids)])
             # Checks
             if min(roids) <= 0:
-                break
+                output.append("At least one roid hit zero!")
             if boosts >= boostqty:
                 output.append(f"Target of {boosts} boosts reached at {incr_to_dur(incr)} after 2nd genrich")
                 break
+        else:
+            output.append("Hit simulation time limit!")
         
         # Check if longer delay needed
         if boosts < boostqty:
