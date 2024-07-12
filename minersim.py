@@ -110,11 +110,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
                 pulled = [0 for _ in roids]
                 sim_log.append([incr, boosts, tank/minerqty, sum(roids)])
             # Checks
-            if min(roids) <= 0:
-                output.append("At least one roid hit zero! This text should never be displayed")
-                break
-            if boosts >= boostqty:
-                output.append(f"Target of {boosts} boosts reached at {incr_to_dur(incr)} after 2nd genrich")
+            if min(roids) <= 0 or boosts >= boostqty:
                 break
         else:
             output.append("Hit simulation time limit!")
@@ -123,6 +119,8 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
         if boosts < boostqty:
             delay += tick_len
             continue
+
+        output.append(f"Target of {boosts} boosts reached at {incr_to_dur(incr)} after 2nd genrich")
         
         # Create dfs
         sim_log_cols = ["Time", "Boosts", "Tank", "Total Hydro"]
