@@ -45,7 +45,7 @@ st.set_page_config(
 )
 st.title("DRS Mining Simulator")
 st.caption("Version 0.3.0 (Beta)")
-st.caption(f"Last deployed {dt.today().strftime("%b %d, %Y")}")
+st.caption(f"Last deployed {dt.today().strftime('%b %d, %Y')}")
 
 
 def default(label, initvalue):
