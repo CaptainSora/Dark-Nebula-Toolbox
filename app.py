@@ -1,13 +1,12 @@
-import streamlit as st
+from collections import namedtuple
+from datetime import datetime as dt
+
 import numpy as np
 import pandas as pd
-from datetime import datetime as dt
-from collections import namedtuple
-from random import random
 import plotly.express as px
+import streamlit as st
 
 from minersim import simulate
-
 
 # TODO:
 # Tab icon
@@ -32,6 +31,7 @@ from minersim import simulate
 # Time spent breakdown (pie chart?)
 #   Or horizontal bar chart (timeline?) that shows what's going on at each moment
 
+
 VERSION = "0.3.0 (Beta)"
 
 
@@ -44,7 +44,7 @@ st.set_page_config(
     }
 )
 st.title("DRS Mining Simulator")
-st.caption(f"Version 0.3.0 (Beta) - Last deployed {dt.today().strftime('%b %d, %Y')}")
+st.caption(f"Version {VERSION} - Last deployed {dt.today().strftime('%b %d, %Y')}")
 
 
 def default(label, initvalue):

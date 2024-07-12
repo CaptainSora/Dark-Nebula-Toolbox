@@ -1,7 +1,7 @@
 from math import floor
 from random import uniform
-from pandas import DataFrame as df
 
+from pandas import DataFrame as df
 
 GEN = [0, 120, 160, 200, 240, 280, 320, 400, 480, 560, 640, 720, 800, 1000, 1200, 1400]
 ENR = [1, 1.08, 1.16, 1.24, 1.32, 1.4, 1.48, 1.64, 1.8, 1.96, 2.28, 2.6, 2.92, 3.24, 3.56, 4.2]
