@@ -42,6 +42,11 @@ from minersim import simulate
 #   Co-ordinate colors between charts
 # Change simulation output to a dict, save as a single session state variable
 #   Also store a "valid" or "success" parameter for quick checks
+# Animation:
+#   Might have to give up and go with plotly
+#   Alternatively: have an un-interactible animation, remove slider, use progress bar
+#       Two tabs: interactive charts, animated charts
+#       Use a loop to progressively rewrite the charts (reuse code?)
 
 
 VERSION = "0.3.2 (Beta)"
