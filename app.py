@@ -1,6 +1,8 @@
 from collections import namedtuple
 from datetime import datetime as dt
+from time import sleep
 
+import altair as alt
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -30,9 +32,13 @@ from minersim import simulate
 # "How to interpret results" section ("What does this mean?")
 # Time spent breakdown (pie chart?)
 #   Or horizontal bar chart (timeline?) that shows what's going on at each moment
+# Setup breakdown ("Why these starting roids")
+# Bar chart:
+#   Rename "Type" to "Legend" or something useful
+#   Add 3rd type to differentiate currently draining and not draining
 
 
-VERSION = "0.3.0 (Beta)"
+VERSION = "0.3.1 (Beta)"
 
 
 st.set_page_config(
@@ -53,8 +59,6 @@ def default(label, initvalue):
 
 Module = namedtuple("Module", ["name", "path", "min", "max", "init"])
 
-default("Miner Level", 6)
-
 miner_img_paths = [f"Img/MS{x}.webp" for x in range(0, 8)]
 
 module_inputs = [
@@ -65,7 +69,7 @@ module_inputs = [
     Module("Enrich", "Enrich", 0, 15, 11),
     Module("Artifact Boost", "ArtifactBoost", 1, 15, 13),
     Module("DRS Level", "RedStar", 7, 12, 10),
-    Module("Miner Level", "", 1, 7, 6),
+    Module("Miner Level", "Miner Level", 1, 7, 6),
     Module("Miner Quantity", "MS6", 1, 4, 2),
     Module("Target Number of Artifact Boosts", "ArtifactBoost", 1, 25, 18)
 ]
@@ -82,15 +86,16 @@ for _ in range(3):
         with col:
             img, field = st.columns([1, 3], vertical_alignment="center")
             mod = module_inputs[modnum]
+            # Field must be defined before image for dynamic image switching
+            with field:
+                module_values[modnum] = st.number_input(
+                    mod.name, min_value=mod.min, max_value=mod.max, step=1, format="%d",
+                    value=mod.init, key=mod.name, on_change=change_mod_levels)
             with img:
                 if mod.name == "Miner Level":
                     st.image(miner_img_paths[st.session_state["Miner Level"]])
                 else:
                     st.image(f"Img/{mod.path}.webp")
-            with field:
-                module_values[modnum] = st.number_input(
-                    mod.name, min_value=mod.min, max_value=mod.max, step=1, format="%d",
-                    value=mod.init, key=mod.name, on_change=change_mod_levels)
         modnum += 1
 
 _, middle, _ = st.columns([1, 2, 1], gap="small")
@@ -107,13 +112,22 @@ with middle:
 
 default("output", None)
 default("log", None)
-default("field", None)
+default("field_wide", None)
+default("field_long", None)
+
+default("DRS Time", 10)
+
+default("Anim", False)
 
 
 def get_simulation_results():
     if any([st.session_state[mod.name] is None for mod in module_inputs]):
         return
-    st.session_state["output"], st.session_state["log"], st.session_state["field"] = simulate(
+    (
+        st.session_state["output"], st.session_state["log"],
+        st.session_state["field_wide"], st.session_state["field_long"],
+        st.session_state["enr_base"]
+    ) = simulate(
         st.session_state["DRS Level"],
         st.session_state["Genesis"],
         st.session_state["Enrich"],
@@ -125,28 +139,60 @@ def get_simulation_results():
         st.session_state["Target Number of Artifact Boosts"]
     )
 
+# def start_anim():
+#     st.session_state["Anim"] = True
+#     while st.session_state["Anim"] and st.session_state["DRS Time"] < 1000:
+#         st.session_state.slider += 10
+#         sleep(0.5)
+
+# def stop_anim():
+#     st.session_state["Anim"] = False
 
 st.button("Simulate!", on_click=get_simulation_results)
 
 st.warning("Warning: Crunch is currently unsupported by the mining simulation", icon="⚠️")
 
-default("DRS Time", 10)
-
-if st.session_state["output"] is not None and st.session_state["log"] is not None:
+if all([
+        st.session_state["output"] is not None,
+        st.session_state["log"] is not None,
+        st.session_state["field_long"] is not None
+    ]):
     st.write(st.session_state["output"])
-    df = st.session_state["log"]
+    log = st.session_state["log"]
+    field = st.session_state["field_long"]
 
-    if not df.empty:
+    if not log.empty:
         st.line_chart(
-            data=df[["Time", "Total Hydro", "Max Hydro"]],
+            data=log[["Time", "Total Hydro", "Max Hydro"]],
             x="Time", x_label="Time after 2nd genrich (seconds)",
             y_label="Hydrogen"
         )
 
-        # st.session_state["DRS Time"] = st.slider(
-        #     "DRS Time (seconds)", min_value=0, max_value=df["Time"].values[-1],
-        #     value=0, step=10, format="%d", key="Bar Slider"
-        # )
+        st.session_state["DRS Time"] = st.slider(
+            "DRS Time (seconds)", min_value=10, max_value=log["Time"].values[-1],
+            step=10, format="%d", key="slider"
+        )
+        
+        bar = alt.Chart(field[field["Time"] == st.session_state["DRS Time"]]).mark_bar().encode(
+            alt.X("Roid").axis(labels=False),
+            alt.Y("Hydro").scale(domain=(0, 1600)),
+            color="Type"
+        )
+
+        rule = alt.Chart(pd.DataFrame({"y": [1500, st.session_state["enr_base"]]})).mark_rule(color="red").encode(y="y")
+
+    
+        # if st.button("Play"):
+        #     while st.session_state["DRS Time"] <= log["Time"].values[-1]:
+        #         st.session_state["DRS Time"] = time_slider.slider(
+        #             "DRS Time (seconds)", min_value=10, max_value=log["Time"].values[-1],
+        #             value=st.session_state["DRS Time"]+10, step=10, format="%d"
+        #         )
+        #         bar_chart.altair_chart(bar + rule, use_container_width=True)
+        #         sleep(0.5)
+
+        st.altair_chart(bar + rule, use_container_width=True)
+
         # NB: Putting the slider after the bar chart led to a one tick delay
 
         # roid_cols = [f"r{x:02}" for x in range(1, 15)]
@@ -156,30 +202,43 @@ if st.session_state["output"] is not None and st.session_state["log"] is not Non
         # st.bar_chart(df[df["Time"] == st.session_state["DRS Time"]][roid_cols].T)
 
 
-if st.session_state["field"] is not None:
-    barfig = px.bar(
-        st.session_state["field"], x="Roid", y=["Remaining", "Previous Enrich"],
-        animation_frame="Time", range_y=[0, 1500])
+if False:
+    # tab1, tab2 = st.tabs(["Altair bar chart", "Plotly bar chart"])
+    # with tab1:
+    df = st.session_state["field_long"]
 
-    # Custom animation speed
-    barfig.layout.updatemenus[0].buttons[0].args[1]['frame']['duration'] = 120
-
-    barfig.update_layout(
-        title="Animated asteroid values",
-        xaxis_title="Asteroids",
-        yaxis_title="Hydrogen"
+    # st.write(df[df["Time"] == st.session_state["DRS Time"]])
+    bar = alt.Chart(df[df["Time"] == st.session_state["DRS Time"]]).mark_bar().encode(
+        alt.X("Roid").axis(labels=False),
+        alt.Y("Hydro").scale(domain=(0, 1600)),
+        color="Type"
     )
-    # TODO: change bar colors
-    # TODO: add textures for currently draining roids?
 
-    # TODO: Add hline for max amount
-    # TODO: Add hline for re-enrich amount
+    rule = alt.Chart(pd.DataFrame({"y": [1500, st.session_state["enr_base"]]})).mark_rule(color="red").encode(y="y")
 
-    # TODO: fix legend names
+    st.altair_chart(bar + rule, use_container_width=True)
 
-    st.plotly_chart(barfig)
+    # st.button("Play", on_click=start_anim)
+    # st.button("Pause", on_click=stop_anim)
+    # with tab2:
+    #     barfig = px.bar(
+    #         st.session_state["field_wide"], x="Roid", y=["Remaining", "Previous Enrich"],
+    #         animation_frame="Time", range_y=[0, 1500])
 
-# wide_df = px.data.medals_wide()
+    #     # Custom animation speed
+    #     barfig.layout.updatemenus[0].buttons[0].args[1]['frame']['duration'] = 120
 
-# fig = px.bar(wide_df, x="nation", y=["gold", "silver", "bronze"], title="Wide-Form Input", )
-# fig
+    #     barfig.update_layout(
+    #         title="Animated asteroid values",
+    #         xaxis_title="Asteroids",
+    #         yaxis_title="Hydrogen"
+    #     )
+    #     # TODO: change bar colors
+    #     # TODO: add textures for currently draining roids?
+
+    #     # TODO: Add hline for max amount
+    #     # TODO: Add hline for re-enrich amount
+
+    #     # TODO: fix legend names
+
+    #     st.plotly_chart(barfig)

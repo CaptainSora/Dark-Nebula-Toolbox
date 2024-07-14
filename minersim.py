@@ -25,8 +25,12 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
     boostqty: int at least 1
     tick_len: int as a positive factor of 60
 
-    Returns the output of the simulation, a DataFrame containing the summary of each simulated step,
-    and a DataFrame of the detailed asteroid values at each simulated step.
+    Returns:
+        list[str]: the output of the simulation
+        pd.DataFrame: the summary of each simulated step
+        pd.DataFrame: the detailed asteroid values at each simulated step (wide format)
+        pd.DataFrame: the detailed asteroid values at each simulated step (long format)
+        int: the re-enrich target level
     """
     # Randomly generate hydro roid values
     # Assuming uniformly generated values within 10% of the average hydro value in sector
@@ -36,6 +40,9 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
     mspeed = MINER[minerlv] * MBOOST[mboostlv] * REMOTE[remotelv] / 4 * minerqty
     # Total hydro drained per roid per tick
     drain = mspeed / REMOTE[remotelv] / 60 * tick_len
+
+    # Re-enrich target level
+    enr_base = int(HMAX / ENR[enrlv])
 
     def enrich(roidlist):
         return [min(floor(r * ENR[enrlv]), HMAX) for r in roidlist]
@@ -127,9 +134,10 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
         sim_log = df.from_records(sim_log, columns=sim_log_cols)
         sim_log["Max Hydro"] = 21000
         field_cols = ["Time", "Roid", "Remaining", "Previous Enrich"]
-        field = df.from_records(field, columns=field_cols)
+        field_wide = df.from_records(field, columns=field_cols)
+        field_long = field_wide.melt(["Time", "Roid"], var_name="Type", value_name="Hydro")
 
-        return output, sim_log, field
+        return output, sim_log, field_wide, field_long, enr_base
     
     # Failed simulation
     output = [
@@ -138,4 +146,4 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
         f"DRS{drslv} starting with random roid sizes {base_roids} totalling {sum(base_roids)}h",
         f"Simulation failed with given parameters!"
     ]
-    return output, df(), df()
+    return output, df(), df(), df(), enr_base
