@@ -173,12 +173,14 @@ if all([
     )
     
     bar = alt.Chart(field[field["Time"] == st.session_state["DRS Time"]]).mark_bar().encode(
-        alt.X("Roid").axis(labels=False),
-        alt.Y("Hydro").scale(domain=(0, 1600)),
+        alt.X("Roid").axis(labels=False, title="Asteroids"),
+        alt.Y("Hydro").axis(title="Hydro", values=[0, 300, 600, 900, 1200, 1500]),
         color="Type"
     )
 
-    rule = alt.Chart(pd.DataFrame({"y": [1500, st.session_state["enr_base"]]})).mark_rule(color="red").encode(y="y")
+    rule = alt.Chart(pd.DataFrame({"y": [1500, st.session_state["enr_base"]]})).mark_rule(color="red").encode(alt.Y("y"))
+
+    st.altair_chart(bar + rule, use_container_width=True)
 
 
     # if st.button("Play"):
@@ -189,16 +191,6 @@ if all([
     #         )
     #         bar_chart.altair_chart(bar + rule, use_container_width=True)
     #         sleep(0.5)
-
-    st.altair_chart(bar + rule, use_container_width=True)
-
-    # NB: Putting the slider after the bar chart led to a one tick delay
-
-    # roid_cols = [f"r{x:02}" for x in range(1, 15)]
-
-    # st.write(df[df["Time"] == st.session_state["DRS Time"]][roid_cols].T)
-
-    # st.bar_chart(df[df["Time"] == st.session_state["DRS Time"]][roid_cols].T)
 
 
 if False:
