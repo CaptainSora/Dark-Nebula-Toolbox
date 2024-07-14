@@ -39,7 +39,9 @@ from minersim import simulate
 #   Add 3rd type to differentiate currently draining and not draining
 # Line chart:
 #   Add "previous enrich" line similar to the bar chart?
+#       Counterargument: pointless horizontal lines at peaks
 #   Co-ordinate colors between charts
+#   Change x-axis to be a duration?
 # Change simulation output to a dict, save as a single session state variable
 #   Also store a "valid" or "success" parameter for quick checks
 # Animation:
@@ -49,7 +51,7 @@ from minersim import simulate
 #       Use a loop to progressively rewrite the charts (reuse code?)
 
 
-VERSION = "0.3.2 (Beta)"
+VERSION = "0.3.3 (Beta)"
 
 
 st.set_page_config(
@@ -92,6 +94,7 @@ module_values = [None for _ in module_inputs]
 
 modnum = 0
 
+### Inputs
 for _ in range(3):
     for col in st.columns(3, gap="medium"):
         with col:
@@ -174,18 +177,20 @@ if all([
     log = st.session_state["log"]
     field = st.session_state["field_long"]
 
-    st.session_state["DRS Time"] = st.slider(
-        "DRS Time (seconds)", min_value=10, max_value=log["Time"].values[-1],
-        step=10, format="%d", key="slider"
-    )
+    padding, slider_col = st.columns([1, 9])
+    with slider_col:
+        st.session_state["DRS Time"] = st.slider(
+            "DRS Time (seconds)", min_value=10, max_value=log["Time"].values[-1],
+            step=10, format="%d", key="slider"
+        )
 
     line = alt.Chart(log[["Time", "Total Hydro", "Max Hydro"]]).mark_line().encode(
-        alt.X("Time").axis(title="Time after 2nd genrich (seconds)"),
-        alt.Y("Total Hydro").axis(title="Total Hydrogen in Sector")
+        alt.X("Time").scale(domain=(10, log["Time"].values[-1]), nice=False).axis(title="Time after 2nd genrich (seconds)"),
+        alt.Y("Total Hydro").scale(domain=(0, 21000), nice=False).axis(title="Total Hydrogen in Sector",)
     )
 
-    max_hydro = alt.Chart(pd.DataFrame({"y": [21000]})).mark_rule(color="light blue").encode(alt.Y("y"))
-    cur_time = alt.Chart(pd.DataFrame({"x": [st.session_state["DRS Time"]]})).mark_rule(color="darkred").encode(alt.X("x"))
+    max_hydro = alt.Chart(pd.DataFrame({"y": [21000]})).mark_rule(color="red").encode(alt.Y("y"))
+    cur_time = alt.Chart(pd.DataFrame({"x": [st.session_state["DRS Time"]]})).mark_rule(color="orange").encode(alt.X("x"))
 
     st.altair_chart(line + max_hydro + cur_time, use_container_width=True)
     
