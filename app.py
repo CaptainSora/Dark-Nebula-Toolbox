@@ -161,45 +161,44 @@ if all([
     log = st.session_state["log"]
     field = st.session_state["field_long"]
 
-    if not log.empty:
-        st.line_chart(
-            data=log[["Time", "Total Hydro", "Max Hydro"]],
-            x="Time", x_label="Time after 2nd genrich (seconds)",
-            y_label="Hydrogen"
-        )
+    st.line_chart(
+        data=log[["Time", "Total Hydro", "Max Hydro"]],
+        x="Time", x_label="Time after 2nd genrich (seconds)",
+        y_label="Hydrogen"
+    )
 
-        st.session_state["DRS Time"] = st.slider(
-            "DRS Time (seconds)", min_value=10, max_value=log["Time"].values[-1],
-            step=10, format="%d", key="slider"
-        )
-        
-        bar = alt.Chart(field[field["Time"] == st.session_state["DRS Time"]]).mark_bar().encode(
-            alt.X("Roid").axis(labels=False),
-            alt.Y("Hydro").scale(domain=(0, 1600)),
-            color="Type"
-        )
-
-        rule = alt.Chart(pd.DataFrame({"y": [1500, st.session_state["enr_base"]]})).mark_rule(color="red").encode(y="y")
-
+    st.session_state["DRS Time"] = st.slider(
+        "DRS Time (seconds)", min_value=10, max_value=log["Time"].values[-1],
+        step=10, format="%d", key="slider"
+    )
     
-        # if st.button("Play"):
-        #     while st.session_state["DRS Time"] <= log["Time"].values[-1]:
-        #         st.session_state["DRS Time"] = time_slider.slider(
-        #             "DRS Time (seconds)", min_value=10, max_value=log["Time"].values[-1],
-        #             value=st.session_state["DRS Time"]+10, step=10, format="%d"
-        #         )
-        #         bar_chart.altair_chart(bar + rule, use_container_width=True)
-        #         sleep(0.5)
+    bar = alt.Chart(field[field["Time"] == st.session_state["DRS Time"]]).mark_bar().encode(
+        alt.X("Roid").axis(labels=False),
+        alt.Y("Hydro").scale(domain=(0, 1600)),
+        color="Type"
+    )
 
-        st.altair_chart(bar + rule, use_container_width=True)
+    rule = alt.Chart(pd.DataFrame({"y": [1500, st.session_state["enr_base"]]})).mark_rule(color="red").encode(y="y")
 
-        # NB: Putting the slider after the bar chart led to a one tick delay
 
-        # roid_cols = [f"r{x:02}" for x in range(1, 15)]
+    # if st.button("Play"):
+    #     while st.session_state["DRS Time"] <= log["Time"].values[-1]:
+    #         st.session_state["DRS Time"] = time_slider.slider(
+    #             "DRS Time (seconds)", min_value=10, max_value=log["Time"].values[-1],
+    #             value=st.session_state["DRS Time"]+10, step=10, format="%d"
+    #         )
+    #         bar_chart.altair_chart(bar + rule, use_container_width=True)
+    #         sleep(0.5)
 
-        # st.write(df[df["Time"] == st.session_state["DRS Time"]][roid_cols].T)
+    st.altair_chart(bar + rule, use_container_width=True)
 
-        # st.bar_chart(df[df["Time"] == st.session_state["DRS Time"]][roid_cols].T)
+    # NB: Putting the slider after the bar chart led to a one tick delay
+
+    # roid_cols = [f"r{x:02}" for x in range(1, 15)]
+
+    # st.write(df[df["Time"] == st.session_state["DRS Time"]][roid_cols].T)
+
+    # st.bar_chart(df[df["Time"] == st.session_state["DRS Time"]][roid_cols].T)
 
 
 if False:

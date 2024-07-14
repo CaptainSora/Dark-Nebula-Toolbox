@@ -146,4 +146,4 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
         f"DRS{drslv} starting with random roid sizes {base_roids} totalling {sum(base_roids)}h",
         f"Simulation failed with given parameters!"
     ]
-    return output, df(), df(), df(), enr_base
+    return output, None, None, None, enr_base
