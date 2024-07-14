@@ -29,6 +29,7 @@ from minersim import simulate
 #   e.g. mining method, "safe" h amount (no roid at 0 as a built in safety margin)
 # Change text output to have timestamps for each event
 #   Maybe this is the instructions section?
+#   "Miners are currently..."
 # "How to interpret results" section ("What does this mean?")
 # Time spent breakdown (pie chart?)
 #   Or horizontal bar chart (timeline?) that shows what's going on at each moment
@@ -36,9 +37,14 @@ from minersim import simulate
 # Bar chart:
 #   Rename "Type" to "Legend" or something useful
 #   Add 3rd type to differentiate currently draining and not draining
+# Line chart:
+#   Add "previous enrich" line similar to the bar chart?
+#   Co-ordinate colors between charts
+# Change simulation output to a dict, save as a single session state variable
+#   Also store a "valid" or "success" parameter for quick checks
 
 
-VERSION = "0.3.1 (Beta)"
+VERSION = "0.3.2 (Beta)"
 
 
 st.set_page_config(
@@ -124,8 +130,10 @@ def get_simulation_results():
     if any([st.session_state[mod.name] is None for mod in module_inputs]):
         return
     (
-        st.session_state["output"], st.session_state["log"],
-        st.session_state["field_wide"], st.session_state["field_long"],
+        st.session_state["output"],
+        st.session_state["log"],
+        st.session_state["field_wide"],
+        st.session_state["field_long"],
         st.session_state["enr_base"]
     ) = simulate(
         st.session_state["DRS Level"],
@@ -161,19 +169,23 @@ if all([
     log = st.session_state["log"]
     field = st.session_state["field_long"]
 
-    st.line_chart(
-        data=log[["Time", "Total Hydro", "Max Hydro"]],
-        x="Time", x_label="Time after 2nd genrich (seconds)",
-        y_label="Hydrogen"
-    )
-
     st.session_state["DRS Time"] = st.slider(
         "DRS Time (seconds)", min_value=10, max_value=log["Time"].values[-1],
         step=10, format="%d", key="slider"
     )
+
+    line = alt.Chart(log[["Time", "Total Hydro", "Max Hydro"]]).mark_line().encode(
+        alt.X("Time").axis(title="Time after 2nd genrich (seconds)"),
+        alt.Y("Total Hydro").axis(title="Total Hydrogen in Sector")
+    )
+
+    max_hydro = alt.Chart(pd.DataFrame({"y": [21000]})).mark_rule(color="light blue").encode(alt.Y("y"))
+    cur_time = alt.Chart(pd.DataFrame({"x": [st.session_state["DRS Time"]]})).mark_rule(color="darkred").encode(alt.X("x"))
+
+    st.altair_chart(line + max_hydro + cur_time, use_container_width=True)
     
     bar = alt.Chart(field[field["Time"] == st.session_state["DRS Time"]]).mark_bar().encode(
-        alt.X("Roid").axis(labels=False, title="Asteroids"),
+        alt.X("Roid").axis(labels=False, title="Asteroids in Sector"),
         alt.Y("Hydro").axis(title="Hydro", values=[0, 300, 600, 900, 1200, 1500]),
         color="Type"
     )
