@@ -13,6 +13,10 @@ HMAX = 1500
 DRSHYDRO = [0, 0, 0, 0, 0, 0, 0, 400, 500, 600, 700, 800, 900]
 
 
+def incr_to_dur(incr):
+    return f"{incr//60:02}m{incr%60:02}s"
+
+
 def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, boostqty, tick_len=10):
     """
     Runs a simulation of the hydrogen (h or hydro) asteroids (roids) in the hydro sector of a Hades' Star
@@ -59,9 +63,6 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
             pulledlist[i] + drain if i in rmtargets else pulledlist[i]
             for i in range(len(pulledlist))
         ]
-    
-    def incr_to_dur(incr):
-        return f"{incr//60:02}m{incr%60:02}s"
 
     delay = 0
     # Prepare simulation to see if delay is sufficient

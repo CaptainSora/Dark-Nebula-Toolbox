@@ -8,7 +8,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from minersim import simulate
+from minersim import simulate, incr_to_dur
 
 # TODO:
 # Tab icon
@@ -49,9 +49,12 @@ from minersim import simulate
 #   Alternatively: have an un-interactible animation, remove slider, use progress bar
 #       Two tabs: interactive charts, animated charts
 #       Use a loop to progressively rewrite the charts (reuse code?)
+# Feature:
+#   Compare final time against two builds
+#   Find out most time-efficient next upgrade
 
 
-VERSION = "0.3.3 (Beta)"
+VERSION = "0.4.0 (Beta)"
 
 
 st.set_page_config(
@@ -79,7 +82,7 @@ module_inputs = [
     Module("Remote Mining", "RemoteMining", 1, 15, 9),
     Module("Crunch", "Crunch", 0, 15, 0),
     Module("Genesis", "Genesis", 0, 15, 13),
-    Module("Enrich", "Enrich", 0, 15, 11),
+    Module("Enrich", "Enrich", 0, 15, 12),
     Module("Artifact Boost", "ArtifactBoost", 1, 15, 13),
     Module("DRS Level", "RedStar", 7, 12, 10),
     Module("Miner Level", "Miner Level", 1, 7, 6),
@@ -155,14 +158,31 @@ def get_simulation_results():
         st.session_state["Target Number of Artifact Boosts"]
     )
 
-# def start_anim():
-#     st.session_state["Anim"] = True
-#     while st.session_state["Anim"] and st.session_state["DRS Time"] < 1000:
-#         st.session_state.slider += 10
-#         sleep(0.5)
+def make_linechart(log, time):
+    line = alt.Chart(log[["Time", "Total Hydro", "Max Hydro"]]).mark_line().encode(
+        alt.X("Time")
+            .scale(domain=(10, log["Time"].values[-1]), nice=False)
+            .axis(title="Time after 2nd genrich (seconds)"),
+        alt.Y("Total Hydro") \
+            .scale(domain=(0, 21000), nice=False) \
+            .axis(title="Total Hydrogen in Sector",)
+    )
 
-# def stop_anim():
-#     st.session_state["Anim"] = False
+    max_hydro = alt.Chart(pd.DataFrame({"y": [21000]})).mark_rule(color="red").encode(alt.Y("y"))
+    cur_time = alt.Chart(pd.DataFrame({"x": [time]})).mark_rule(color="orange").encode(alt.X("x"))
+
+    return line + max_hydro + cur_time
+
+def make_barchart(field, time):
+    bar = alt.Chart(field[field["Time"] == time]).mark_bar().encode(
+        alt.X("Roid").axis(labels=False, title="Asteroids in Sector"),
+        alt.Y("Hydro").axis(title="Hydro", values=[0, 300, 600, 900, 1200, 1500]),
+        color="Type"
+    )
+
+    rule = alt.Chart(pd.DataFrame({"y": [1500, st.session_state["enr_base"]]})).mark_rule(color="red").encode(alt.Y("y"))
+
+    return bar + rule
 
 st.button("Simulate!", on_click=get_simulation_results)
 
@@ -177,33 +197,40 @@ if all([
     log = st.session_state["log"]
     field = st.session_state["field_long"]
 
-    padding, slider_col = st.columns([1, 9])
-    with slider_col:
-        st.session_state["DRS Time"] = st.slider(
-            "DRS Time (seconds)", min_value=10, max_value=log["Time"].values[-1],
-            step=10, format="%d", key="slider"
-        )
+    time_min = 10
+    time_max = log["Time"].values[-1]
 
-    line = alt.Chart(log[["Time", "Total Hydro", "Max Hydro"]]).mark_line().encode(
-        alt.X("Time").scale(domain=(10, log["Time"].values[-1]), nice=False).axis(title="Time after 2nd genrich (seconds)"),
-        alt.Y("Total Hydro").scale(domain=(0, 21000), nice=False).axis(title="Total Hydrogen in Sector",)
-    )
+    tab1, tab2 = st.tabs(["Interactive Graphs", "Animated Graphs"])
 
-    max_hydro = alt.Chart(pd.DataFrame({"y": [21000]})).mark_rule(color="red").encode(alt.Y("y"))
-    cur_time = alt.Chart(pd.DataFrame({"x": [st.session_state["DRS Time"]]})).mark_rule(color="orange").encode(alt.X("x"))
+    with tab1:
+        padding, slider_col = st.columns([1, 9])
+        with slider_col:
+            st.session_state["DRS Time"] = st.slider(
+                "DRS Time (seconds)", min_value=time_min, max_value=time_max,
+                step=10, format="%d", key="slider"
+            )
 
-    st.altair_chart(line + max_hydro + cur_time, use_container_width=True)
+        st.altair_chart(make_linechart(log, time=st.session_state["DRS Time"]), use_container_width=True)
+        st.altair_chart(make_barchart(field, time=st.session_state["DRS Time"]), use_container_width=True)
     
-    bar = alt.Chart(field[field["Time"] == st.session_state["DRS Time"]]).mark_bar().encode(
-        alt.X("Roid").axis(labels=False, title="Asteroids in Sector"),
-        alt.Y("Hydro").axis(title="Hydro", values=[0, 300, 600, 900, 1200, 1500]),
-        color="Type"
-    )
-
-    rule = alt.Chart(pd.DataFrame({"y": [1500, st.session_state["enr_base"]]})).mark_rule(color="red").encode(alt.Y("y"))
-
-    st.altair_chart(bar + rule, use_container_width=True)
-
+    with tab2:
+        col1, col2, col3 = st.columns([1, 1, 6])
+        with col1:
+            play_fast = st.button("Play (Fast)")
+        with col2:
+            play_slow = st.button("Play (Slow)")
+        with col3:
+            pbar = st.progress(0, text = f"DRS Time: {incr_to_dur(time_min)}")
+        line = st.altair_chart(make_linechart(log, time_min), use_container_width=True)
+        bar = st.altair_chart(make_barchart(field, time_min), use_container_width=True)
+    
+        if play_fast or play_slow:
+            for time in range(time_min, time_max + 10, 10):
+                pbar.progress(time / time_max, text = f"DRS Time: {incr_to_dur(time)}")
+                line.altair_chart(make_linechart(log, time), use_container_width=True)
+                bar.altair_chart(make_barchart(field, time), use_container_width=True)
+                sleep(0.05 if play_fast else 0.2)
+            # pbar.progress(0, text = f"DRS Time: {incr_to_dur(time)}")
 
     # if st.button("Play"):
     #     while st.session_state["DRS Time"] <= log["Time"].values[-1]:
