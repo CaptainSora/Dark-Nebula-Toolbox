@@ -10,49 +10,6 @@ import streamlit as st
 
 from minersim import simulate, incr_to_dur
 
-# TODO:
-# Tab icon
-# Page menu
-#   Help: maybe an email link or google form?
-#   Bug: Google form
-#   About: Discord contact
-# Sanity check miner lv vs AB lv
-# Learn about crunch mechanics
-# Start timer at start of DRS
-#   Take input on when first genrich is?
-#   Need an enrich timer as well
-# Help text on inputs
-# Below Line chart, show actions at current time step? (Link to slider)
-# Add warning text about random roids, to simulate a few times and take the 
-#   latest start time
-# Explain simulation assumptions
-#   e.g. mining method, "safe" h amount (no roid at 0 as a built in safety margin)
-# Change text output to have timestamps for each event
-#   Maybe this is the instructions section?
-#   "Miners are currently..."
-# "How to interpret results" section ("What does this mean?")
-# Time spent breakdown (pie chart?)
-#   Or horizontal bar chart (timeline?) that shows what's going on at each moment
-# Setup breakdown ("Why these starting roids")
-# Bar chart:
-#   Rename "Type" to "Legend" or something useful
-#   Add 3rd type to differentiate currently draining and not draining
-# Line chart:
-#   Add "previous enrich" line similar to the bar chart?
-#       Counterargument: pointless horizontal lines at peaks
-#   Co-ordinate colors between charts
-#   Change x-axis to be a duration?
-# Change simulation output to a dict, save as a single session state variable
-#   Also store a "valid" or "success" parameter for quick checks
-# Animation:
-#   Might have to give up and go with plotly
-#   Alternatively: have an un-interactible animation, remove slider, use progress bar
-#       Two tabs: interactive charts, animated charts
-#       Use a loop to progressively rewrite the charts (reuse code?)
-# Feature:
-#   Compare final time against two builds
-#   Find out most time-efficient next upgrade
-
 
 VERSION = "0.4.0 (Beta)"
 
