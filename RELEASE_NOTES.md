@@ -57,7 +57,7 @@ All notable changes to this project will be documented in this file. See the Abo
 ## [0.2] - 2024-07-10
 
 ### User Interface
-- Changed default values for player inputs to be useful sample values to see simulation results
+- Changed default values for user inputs to be useful sample values to see simulation results
 
 ### Graphs
 - Added an animated bar chart showing specific asteroid values at each time step
