@@ -56,16 +56,17 @@ All notable changes to this project will be documented in this file. See the Abo
 
 ## [0.2] - 2024-07-10
 
-### Added
-- Plotly animated bar chart for asteroid values
-- Default values set for inputs
+### User Interface
+- Changed default values for player inputs to be useful sample values to see simulation results
 
-### Fixed
-- Increased the upper limit for delay values checked
-- Improved simulation logging for initial conditions
+### Graphs
+- Added an animated bar chart showing specific asteroid values at each time step
 
-### Changed
-- App is now publicly available and hosted on Streamlit
+### Simulation
+- Fixed a bug where the simulation would give up checking start times too soon
+
+### Hosting
+- Deployed [pre-release app](https://dn-toolbox.streamlit.app/) to Streamlit
 
 
 ## [0.1] - 2024-07-09
