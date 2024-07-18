@@ -19,17 +19,11 @@ All notable changes to this project will be documented in this file. See the Abo
 - Improved line chart axis domains
 
 
-## [0.3.2] - 2024-07-11
+## [0.3.2] - 2024-07-14
 
-### Added
-- Line chart for total hydro values using Altair
-    - Added responsive vline which syncs with time slider and bar chart
-
-### Changed
-- Bar chart axis titles, domains, and ticks changed to be more informative
-
-### Removed
-- Streamlit line chart
+### Visualizations
+- Improved line chart to indicate the current time selected by the DRS Time slider
+- Improved bar chart axis titles, y-axis domain, and y-axis ticks to be more readable
 
 
 ## [0.3.1] - 2024-07-14
