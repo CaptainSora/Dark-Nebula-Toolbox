@@ -12,11 +12,12 @@ All notable changes to this project will be documented in this file. See the Abo
     - Two animation speeds
 
 
-## [0.3.3] - 2024-07-11
+## [0.3.3] - 2024-07-14
 
-### Changed
-- Improved slider spacing to align with line chart widths
-- Improved line chart axis domains
+### Visualizations
+- Improved slider spacing to align with the line chart
+- Improved line chart axis domains to use the full width and height
+- Improved line chart vertical and horizontal overlay colors to stand out more
 
 
 ## [0.3.2] - 2024-07-14
