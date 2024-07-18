@@ -59,7 +59,7 @@ All notable changes to this project will be documented in this file. See the Abo
 ### User Interface
 - Changed default values for user inputs to be useful sample values to see simulation results
 
-### Graphs
+### Visualizations
 - Added an animated bar chart showing specific asteroid values at each time step
 
 ### Simulation
