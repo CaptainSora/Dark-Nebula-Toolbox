@@ -5,11 +5,9 @@ All notable changes to this project will be documented in this file. See the Abo
 
 ## [0.4.0] - 2024-07-16
 
-### Added
-- CHANGELOG.md file
-- Second tab with animated charts (bar and line)
-    - Identical to interactive charts
-    - Two animation speeds
+### Visualizations
+- Added a second tab for animated charts which automatically progress through time steps
+    - Added two playback speed options
 
 
 ## [0.3.3] - 2024-07-14
