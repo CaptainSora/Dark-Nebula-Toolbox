@@ -44,14 +44,12 @@ All notable changes to this project will be documented in this file. See the Abo
 
 ## [0.3.0] - 2024-07-11
 
-### Added
-- Version number and build date in-app
+### User Interface
+- Added version number and build date
+- Clarified user input to specify Artifact Boosts
 
-### Fixed
-- Improved logging for a previously silent simulation fail state
-- Simulation runs properly reset initial conditions
-- Simulation properly handles race condition between completion and failure states
-- Improved input label to specify Artifact Boosts
+### Simulation
+- Fixed a bug where target boosts were reached at the same time step as hydro ran out
 
 
 ## [0.2] - 2024-07-10
