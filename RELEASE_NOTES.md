@@ -1,13 +1,6 @@
-# Changelog
+# Release Notes
 
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
-
-Versioning is sequence-based following the format major.minor\[.build\[.revision\]\]:
-- Minor changes constitute a section of software or a feature
-- Builds constitute changes within such a section or feature (which may include bug fixes)
-- Revisions constitute non-critical bug fixes or similarly sized changes.
+All notable changes to this project will be documented in this file. See the About section at the end for details.
 
 
 ## [0.4.0] - 2024-07-16
@@ -84,3 +77,13 @@ Versioning is sequence-based following the format major.minor\[.build\[.revision
 - Streamlit data tracking disabled
 - Streamlit line chart for total hydro values
 - Streamlit slider for drs time
+
+# About
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+Instead of grouping changes by their type (which may be useful for developers), changes are instead grouped by feature.
+
+Versioning is sequence-based following the format major.minor\[.build\]:
+- Major changes indicate a significant change such as a new page or tool independent from the others
+- Minor changes indicate new features to existing pages or tools
+- Builds indicate small changes such as an update to a feature and/or bug fixes
