@@ -32,14 +32,11 @@ All notable changes to this project will be documented in this file. See the Abo
 - Streamlit line chart
 
 
-## [0.3.1] - 2024-07-11
+## [0.3.1] - 2024-07-14
 
-### Added
-- Dynamic image switching for Miner Level input
-- Bar chart for asteroid values using Altair
-
-### Removed
-- Plotly bar chart
+### User Interface
+- Added dynamic icon for the Miner Level user input to match the currently selected level
+- Improved bar chart to be controllable by the DRS Time slider instead of animating on its own
 
 
 ## [0.3.0] - 2024-07-11
