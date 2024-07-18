@@ -86,7 +86,7 @@ All notable changes to this project will be documented in this file. See the Abo
 # About
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
-Instead of grouping changes by their type (which may be useful for developers), changes are instead grouped by feature.
+Instead of grouping changes by their type (which may be useful for developers), changes are instead grouped by feature. Types should be inferable from the first word of each item.
 
 Versioning is sequence-based following the format major.minor\[.build\]:
 - Major changes indicate a significant change such as a new page or tool independent from the others
