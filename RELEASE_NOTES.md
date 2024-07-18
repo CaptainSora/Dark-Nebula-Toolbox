@@ -70,13 +70,18 @@ All notable changes to this project will be documented in this file. See the Abo
 
 ## [0.1] - 2024-07-09
 
-### Added
-- Streamlit frontend
-- Player module level inputs with game images
-- Basic miner simulation
-- Streamlit data tracking disabled
-- Streamlit line chart for total hydro values
-- Streamlit slider for drs time
+### User Interface
+- Added user inputs for module levels with associated icons
+- Added a button to run the simulation based on provided inputs
+- Added a line chart showing the total hydro available throughout the DRS
+- Added a slider to select a time step for future graphs
+
+### Simulation
+- Created proof-of-concept simulation to optimize mining duration
+
+### Privacy
+- Disabled Streamlit's browser data tracking
+
 
 # About
 
