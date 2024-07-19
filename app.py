@@ -8,7 +8,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from minersim import simulate, incr_to_dur
+from minersim import simulate, to_dur
 
 
 VERSION = "0.4.0 (Beta)"
@@ -188,13 +188,13 @@ if all([
         with col2:
             play_slow = st.button("Play (Slow)")
         with col3:
-            pbar = st.progress(0, text = f"DRS Time: {incr_to_dur(time_min)}")
+            pbar = st.progress(0, text = f"DRS Time: {to_dur(time_min)}")
         line = st.altair_chart(make_linechart(log, time_min), use_container_width=True)
         bar = st.altair_chart(make_barchart(field, time_min), use_container_width=True)
     
         if play_fast or play_slow:
             for time in range(time_min, time_max + 10, 10):
-                pbar.progress(time / time_max, text = f"DRS Time: {incr_to_dur(time)}")
+                pbar.progress(time / time_max, text = f"DRS Time: {to_dur(time)}")
                 line.altair_chart(make_linechart(log, time), use_container_width=True)
                 bar.altair_chart(make_barchart(field, time), use_container_width=True)
                 sleep(0.05 if play_fast else 0.2)

@@ -13,7 +13,7 @@ HMAX = 1500
 DRSHYDRO = [0, 0, 0, 0, 0, 0, 0, 400, 500, 600, 700, 800, 900]
 
 
-def incr_to_dur(incr):
+def to_dur(incr):
     return f"{incr//60:02}m{incr%60:02}s"
 
 
@@ -72,15 +72,15 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
 
     # Simulation timers
     time = 0
-    delay = 0
+    mining_delay = 0
 
     # Prepare simulation to see if delay is sufficient
-    while delay <= 10 * 60 + tick_len:
+    while mining_delay <= 10 * 60 + tick_len:
         output = [
             f"Genrich {genlv}/{enrlv}, AB {ablv}",
             f"{minerqty}x Miner {minerlv} at {mboostlv}/{remotelv} targeting {boostqty} boosts",
             f"DRS{drslv} starting with random roid sizes {base_roids} totalling {sum(base_roids)}h",
-            f"Mining delayed until {incr_to_dur(delay)} after 2nd genrich"
+            f"Mining delayed until {to_dur(mining_delay)} after 2nd genrich"
         ]
         # Logs
         sim_log = []
@@ -125,7 +125,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
         # Capping simulation at 40 minutes
         while time < 40 * 60:
             # Mine
-            if time >= delay + 2 * genrich_cd:
+            if time >= mining_delay + 2 * genrich_cd:
                 tank += drain * REMOTE[remotelv]
                 roids, pulled = tick(roids, pulled, targets)
             time += tick_len
@@ -151,10 +151,10 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
         
         # Check if longer delay needed
         if boosts < boostqty:
-            delay += tick_len
+            mining_delay += tick_len
             continue
 
-        output.append(f"Target of {boosts} boosts reached at {incr_to_dur(time)} after 2nd genrich")
+        output.append(f"Target of {boosts} boosts reached at {to_dur(time)} after 2nd genrich")
         
         # Create dfs
         sim_log_cols = ["Time", "Boosts", "Tank", "Total Hydro"]
