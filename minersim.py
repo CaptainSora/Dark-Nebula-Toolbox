@@ -42,6 +42,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
     # Assuming uniformly generated values within 10% of the average hydro value in sector
     base_roids = [round(uniform(DRSHYDRO[drslv] / 8 * 0.9, DRSHYDRO[drslv] / 8 * 1.1)) for _ in range(7)]
     base_roids.append(DRSHYDRO[drslv] - sum(base_roids))
+    base_roids.extend([0 for _ in range(6)])
     # Total mining speed in h/min
     mspeed = MINER[minerlv] * MBOOST[mboostlv] * REMOTE[remotelv] / 4 * minerqty
     # Total hydro drained per roid per tick
@@ -87,22 +88,23 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
         # Setup
         time = 0
         roids = base_roids[:]
+        pulled = [0 for _ in roids]
         tank = 0
         boosts = 0
         
         # Initial setup
         sim_log.append([time, boosts, tank/minerqty, sum(roids)])
-        for i in range(8):
+        for i in range(14):
             field.append([time, f"r{i:02}", roids[i], 0])
 
         while time < genrich_delay:
             time += tick_len
             sim_log.append([time, boosts, tank/minerqty, sum(roids)])
-            for i in range(8):
+            for i in range(14):
                 field.append([time, f"r{i:02}", roids[i], 0])
 
         # 1st genrich
-        roids.extend([GEN[genlv] // 4] * 4)
+        roids[8:12] = [GEN[genlv] // 4 for _ in range(4)]
         roids = enrich(roids)
         output.append(f"1st Genrich leaves {sum(roids)} total hydro")
         sim_log.append([time, boosts, tank/minerqty, sum(roids)])
@@ -110,17 +112,16 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
         while time < genrich_delay + genrich_cd:
             time += tick_len
             sim_log.append([time, boosts, tank/minerqty, sum(roids)])
-            for i in range(12):
+            for i in range(14):
                 field.append([time, f"r{i:02}", roids[i], 0])
 
         # 2nd genrich
-        roids.extend([GEN[genlv] // 4] * 2)
+        roids[12:14] = [GEN[genlv] // 4 for _ in range(2)]
         roids = enrich(roids)
         output.append(f"2nd Genrich leaves {sum(roids)} total hydro")
         sim_log.append([time, boosts, tank/minerqty, sum(roids)])
 
-        # Prepare for mining
-        pulled = [0 for _ in roids]
+        # Find mining targets
         targets = rmtargets(roids)
 
         # Capping simulation at 40 minutes
