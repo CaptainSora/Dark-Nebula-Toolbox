@@ -17,7 +17,8 @@ def incr_to_dur(incr):
     return f"{incr//60:02}m{incr%60:02}s"
 
 
-def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, boostqty, tick_len=10):
+def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, 
+             boostqty, genrich_start_min, tick_len=10):
     """
     Runs a simulation of the hydrogen (h or hydro) asteroids (roids) in the hydro sector of a Hades' Star
     Dark Red Star (DRS).
@@ -27,6 +28,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
     minerlv: int between 1 and 7 inclusive
     minerqty: int at least 1
     boostqty: int at least 1
+    genrich_start_min: int between 0 and 9 inclusive
     tick_len: int as a positive factor of 60
 
     Returns:
@@ -63,8 +65,15 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
             pulledlist[i] + drain if i in rmtargets else pulledlist[i]
             for i in range(len(pulledlist))
         ]
+    
+    # Genrich timers
+    genrich_delay = 60 * genrich_start_min
+    genrich_cd = 5 * 60
 
+    # Simulation timers
+    time = 0
     delay = 0
+
     # Prepare simulation to see if delay is sufficient
     while delay <= 10 * 60 + tick_len:
         output = [
@@ -73,50 +82,67 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
             f"DRS{drslv} starting with random roid sizes {base_roids} totalling {sum(base_roids)}h",
             f"Mining delayed until {incr_to_dur(delay)} after 2nd genrich"
         ]
+        # Logs
         sim_log = []
         field = []
 
+        # Setup
         roids = base_roids[:]
+        tank = 0
+        boosts = 0
+        targets = rmtargets(roids)
+
+        while time < genrich_delay:
+            sim_log.append([time, boosts, tank/minerqty, sum(roids)])
+            for i in range(8):
+                field.append([time, f"r{i:02}", roids[i], pulled[i]])
+            time += tick_len
 
         # 1st genrich
         roids.extend([GEN[genlv] // 4] * 4)
         roids = enrich(roids)
         output.append(f"1st Genrich leaves {sum(roids)} total hydro")
 
+        while time < genrich_delay + genrich_cd:
+            sim_log.append([time, boosts, tank/minerqty, sum(roids)])
+            for i in range(12):
+                field.append([time, f"r{i:02}", roids[i], pulled[i]])
+            time += tick_len
+
         # 2nd genrich
         roids.extend([GEN[genlv] // 4] * 2)
         roids = enrich(roids)
         output.append(f"2nd Genrich leaves {sum(roids)} total hydro")
 
+        while time < genrich_delay + 2 * genrich_cd:
+            sim_log.append([time, boosts, tank/minerqty, sum(roids)])
+            for i in range(14):
+                field.append([time, f"r{i:02}", roids[i], pulled[i]])
+            time += tick_len
+
         pulled = [0 for _ in roids]
 
-        # Simulate
-        incr = 0
-        tank = 0
-        boosts = 0
-        targets = rmtargets(roids)
-
-        # Capping simulation at 25 minutes past 2nd genrich
-        while incr < 25 * 60:
+        # Capping simulation at 40 minutes
+        while time < 40 * 60:
             # Mine
-            if incr >= delay:
+            if time >= delay + 2 * genrich_cd:
                 tank += drain * REMOTE[remotelv]
                 roids, pulled = tick(roids, pulled, targets)
-            incr += tick_len
-            sim_log.append([incr, boosts, tank/minerqty, sum(roids)])
+            time += tick_len
+            sim_log.append([time, boosts, tank/minerqty, sum(roids)])
             for i in range(14):
-                field.append([incr, f"r{i:02}", roids[i], pulled[i]])
+                field.append([time, f"r{i:02}", roids[i], pulled[i]])
             # Boost and move
             if tank >= AB[ablv] * minerqty:
                 tank -= AB[ablv] * minerqty
                 boosts += minerqty
                 targets = rmtargets(roids)
             # Enrich
-            if incr % 300 == 0:
+            if time % 300 == 0:
                 roids = enrich(roids)
                 output.append(f"Enriched to {sum(roids)} total hydro")
                 pulled = [0 for _ in roids]
-                sim_log.append([incr, boosts, tank/minerqty, sum(roids)])
+                sim_log.append([time, boosts, tank/minerqty, sum(roids)])
             # Checks
             if min(roids) <= 0 or boosts >= boostqty:
                 break
@@ -128,7 +154,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, b
             delay += tick_len
             continue
 
-        output.append(f"Target of {boosts} boosts reached at {incr_to_dur(incr)} after 2nd genrich")
+        output.append(f"Target of {boosts} boosts reached at {incr_to_dur(time)} after 2nd genrich")
         
         # Create dfs
         sim_log_cols = ["Time", "Boosts", "Tank", "Total Hydro"]
