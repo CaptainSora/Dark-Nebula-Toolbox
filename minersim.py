@@ -100,6 +100,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
             time += tick_len
 
         # 1st genrich
+        sim_log.append([time, boosts, tank/minerqty, sum(roids)])
         roids.extend([GEN[genlv] // 4] * 4)
         roids = enrich(roids)
         output.append(f"1st Genrich leaves {sum(roids)} total hydro")
@@ -111,6 +112,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
             time += tick_len
 
         # 2nd genrich
+        sim_log.append([time, boosts, tank/minerqty, sum(roids)])
         roids.extend([GEN[genlv] // 4] * 2)
         roids = enrich(roids)
         output.append(f"2nd Genrich leaves {sum(roids)} total hydro")
