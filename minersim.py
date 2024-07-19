@@ -80,6 +80,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
             f"Genrich {genlv}/{enrlv}, AB {ablv}",
             f"{minerqty}x Miner {minerlv} at {mboostlv}/{remotelv} targeting {boostqty} boosts",
             f"DRS{drslv} starting with random roid sizes {base_roids} totalling {sum(base_roids)}h",
+            f"First genrich at {genrich_start_min} mins",
             f"Mining delayed until {to_dur(mining_delay)} after 2nd genrich"
         ]
         # Logs
@@ -171,6 +172,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
         f"Genrich {genlv}/{enrlv}, AB {ablv}",
         f"{minerqty}x Miner {minerlv} at {mboostlv}/{remotelv} targeting {boostqty} boosts",
         f"DRS{drslv} starting with random roid sizes {base_roids} totalling {sum(base_roids)}h",
+        f"First genrich at {genrich_start_min} mins",
         f"Simulation failed with given parameters!"
     ]
     return output, None, None, None, enr_base
