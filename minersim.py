@@ -90,46 +90,51 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
         tank = 0
         boosts = 0
         targets = rmtargets(roids)
+        
+        # Initial setup
+        sim_log.append([time, boosts, tank/minerqty, sum(roids)])
+        for i in range(8):
+            field.append([time, f"r{i:02}", roids[i], 0])
 
         while time < genrich_delay:
+            time += tick_len
             sim_log.append([time, boosts, tank/minerqty, sum(roids)])
             for i in range(8):
                 field.append([time, f"r{i:02}", roids[i], 0])
-            time += tick_len
 
         # 1st genrich
-        sim_log.append([time, boosts, tank/minerqty, sum(roids)])
         roids.extend([GEN[genlv] // 4] * 4)
         roids = enrich(roids)
         output.append(f"1st Genrich leaves {sum(roids)} total hydro")
+        sim_log.append([time, boosts, tank/minerqty, sum(roids)])
 
         while time < genrich_delay + genrich_cd:
+            time += tick_len
             sim_log.append([time, boosts, tank/minerqty, sum(roids)])
             for i in range(12):
                 field.append([time, f"r{i:02}", roids[i], 0])
-            time += tick_len
 
         # 2nd genrich
-        sim_log.append([time, boosts, tank/minerqty, sum(roids)])
         roids.extend([GEN[genlv] // 4] * 2)
         roids = enrich(roids)
         output.append(f"2nd Genrich leaves {sum(roids)} total hydro")
+        sim_log.append([time, boosts, tank/minerqty, sum(roids)])
 
         while time < genrich_delay + 2 * genrich_cd:
+            time += tick_len
             sim_log.append([time, boosts, tank/minerqty, sum(roids)])
             for i in range(14):
                 field.append([time, f"r{i:02}", roids[i], 0])
-            time += tick_len
 
         pulled = [0 for _ in roids]
 
         # Capping simulation at 40 minutes
         while time < 40 * 60:
+            time += tick_len
             # Mine
-            if time >= mining_delay + 2 * genrich_cd:
+            if time > mining_delay + 2 * genrich_cd:
                 tank += drain * REMOTE[remotelv]
                 roids, pulled = tick(roids, pulled, targets)
-            time += tick_len
             sim_log.append([time, boosts, tank/minerqty, sum(roids)])
             for i in range(14):
                 field.append([time, f"r{i:02}", roids[i], pulled[i]])
