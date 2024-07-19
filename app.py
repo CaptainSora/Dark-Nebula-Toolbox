@@ -129,8 +129,8 @@ def get_simulation_results():
 def make_linechart(log, time):
     line = alt.Chart(log[["Time", "Total Hydro", "Max Hydro"]]).mark_line().encode(
         alt.X("Time")
-            .scale(domain=(10, log["Time"].values[-1]), nice=False)
-            .axis(title="Time after 2nd genrich (seconds)"),
+            .scale(domain=(0, log["Time"].values[-1]), nice=False)
+            .axis(title="DRS Time (seconds)"),
         alt.Y("Total Hydro") \
             .scale(domain=(0, 21000), nice=False) \
             .axis(title="Total Hydrogen in Sector",)
@@ -144,7 +144,7 @@ def make_linechart(log, time):
 def make_barchart(field, time):
     bar = alt.Chart(field[field["Time"] == time]).mark_bar().encode(
         alt.X("Roid").axis(labels=False, title="Asteroids in Sector"),
-        alt.Y("Hydro").axis(title="Hydro", values=[0, 300, 600, 900, 1200, 1500]),
+        alt.Y("Hydro").axis(title="Hydrogen per Asteroid", values=[0, 300, 600, 900, 1200, 1500]),
         color="Type"
     )
 
@@ -165,7 +165,7 @@ if all([
     log = st.session_state["log"]
     field = st.session_state["field_long"]
 
-    time_min = 10
+    time_min = 0
     time_max = log["Time"].values[-1]
 
     tab1, tab2 = st.tabs(["Interactive Graphs", "Animated Graphs"])
