@@ -89,7 +89,6 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
         roids = base_roids[:]
         tank = 0
         boosts = 0
-        targets = rmtargets(roids)
         
         # Initial setup
         sim_log.append([time, boosts, tank/minerqty, sum(roids)])
@@ -126,7 +125,9 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
             for i in range(14):
                 field.append([time, f"r{i:02}", roids[i], 0])
 
+        # Prepare for mining
         pulled = [0 for _ in roids]
+        targets = rmtargets(roids)
 
         # Capping simulation at 40 minutes
         while time < 40 * 60:
