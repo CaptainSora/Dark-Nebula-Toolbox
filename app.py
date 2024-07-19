@@ -44,7 +44,8 @@ module_inputs = [
     Module("DRS Level", "RedStar", 7, 12, 10),
     Module("Miner Level", "Miner Level", 1, 7, 6),
     Module("Miner Quantity", "MS6", 1, 4, 2),
-    Module("Target Number of Artifact Boosts", "ArtifactBoost", 1, 25, 18)
+    Module("Target Number of Artifact Boosts", "ArtifactBoost", 1, 25, 18),
+    Module("First Genrich (Minutes)", "Genesis", 0, 9, 2),
 ]
 
 def change_mod_levels():
@@ -72,9 +73,18 @@ for _ in range(3):
                     st.image(f"Img/{mod.path}.webp")
         modnum += 1
 
-_, middle, _ = st.columns([1, 2, 1], gap="small")
-with middle:
-    img, field = st.columns([1, 5], vertical_alignment="center")
+left, right = st.columns([3, 2], gap="small")
+with left:
+    img, field = st.columns([2, 13], vertical_alignment="center")
+    mod = module_inputs[-2]
+    with img:
+        st.image(f"Img/{mod.path}.webp")
+    with field:
+        module_values[modnum] = st.number_input(
+            mod.name, min_value=mod.min, max_value=mod.max, step=1, format="%d",
+            value=mod.init, key=mod.name, on_change=change_mod_levels)
+with right:
+    img, field = st.columns([1, 4], vertical_alignment="center")
     mod = module_inputs[-1]
     with img:
         st.image(f"Img/{mod.path}.webp")
@@ -112,7 +122,8 @@ def get_simulation_results():
         st.session_state["Remote Mining"],
         st.session_state["Miner Level"],
         st.session_state["Miner Quantity"],
-        st.session_state["Target Number of Artifact Boosts"]
+        st.session_state["Target Number of Artifact Boosts"],
+        st.session_state["First Genrich (Minutes)"],
     )
 
 def make_linechart(log, time):
