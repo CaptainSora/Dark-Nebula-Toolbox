@@ -119,12 +119,6 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
         output.append(f"2nd Genrich leaves {sum(roids)} total hydro")
         sim_log.append([time, boosts, tank/minerqty, sum(roids)])
 
-        while time < genrich_delay + 2 * genrich_cd:
-            time += tick_len
-            sim_log.append([time, boosts, tank/minerqty, sum(roids)])
-            for i in range(14):
-                field.append([time, f"r{i:02}", roids[i], 0])
-
         # Prepare for mining
         pulled = [0 for _ in roids]
         targets = rmtargets(roids)
@@ -133,7 +127,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
         while time < 40 * 60:
             time += tick_len
             # Mine
-            if time > mining_delay + 2 * genrich_cd:
+            if time > genrich_delay + genrich_cd + mining_delay:
                 tank += drain * REMOTE[remotelv]
                 roids, pulled = tick(roids, pulled, targets)
             sim_log.append([time, boosts, tank/minerqty, sum(roids)])
@@ -145,7 +139,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
                 boosts += minerqty
                 targets = rmtargets(roids)
             # Enrich
-            if time % 300 == 0:
+            if (time - genrich_delay) % genrich_cd == 0:
                 roids = enrich(roids)
                 output.append(f"Enriched to {sum(roids)} total hydro")
                 pulled = [0 for _ in roids]
