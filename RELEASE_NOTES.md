@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See the About section at the end for details.
 
 
+## [0.4.1] - Unreleased
+
+### Simulation
+- Added new user input to specify when the first genrich occurs
+- Changed simulation to use the start of the DRS as time zero
+
+
 ## [0.4.0] - 2024-07-16
 
 ### Visualizations
