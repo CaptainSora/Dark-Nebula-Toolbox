@@ -70,10 +70,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
     genrich_delay = 60 * genrich_start_min
     genrich_cd = 5 * 60
 
-    # Simulation timers
-    time = 0
     mining_delay = 0
-
     # Prepare simulation to see if delay is sufficient
     while mining_delay <= 10 * 60 + tick_len:
         output = [
@@ -88,6 +85,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
         field = []
 
         # Setup
+        time = 0
         roids = base_roids[:]
         tank = 0
         boosts = 0
