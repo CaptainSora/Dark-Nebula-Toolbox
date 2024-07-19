@@ -75,10 +75,10 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
     while mining_delay <= 10 * 60 + tick_len:
         output = [
             f"Genrich {genlv}/{enrlv}, AB {ablv}",
-            f"{minerqty}x Miner {minerlv} at {mboostlv}/{remotelv} targeting {boostqty} boosts",
+            f"{minerqty}x Miner {minerlv} at {mboostlv}/{remotelv} targeting {boostqty} artifact boosts",
             f"DRS{drslv} starting with random roid sizes {base_roids} totalling {sum(base_roids)}h",
-            f"First genrich at {genrich_start_min} mins",
-            f"Mining delayed until {to_dur(mining_delay)} after 2nd genrich"
+            f"First genrich at {to_dur(genrich_delay)} after start",
+            f"Mining delayed until {to_dur(mining_delay)} after 2nd genrich",
         ]
         # Logs
         sim_log = []
@@ -155,7 +155,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
             mining_delay += tick_len
             continue
 
-        output.append(f"Target of {boosts} boosts reached at {to_dur(time)} after 2nd genrich")
+        output.append(f"Target of {boosts} boosts reached at {to_dur(time)}")
         
         # Create dfs
         sim_log_cols = ["Time", "Boosts", "Tank", "Total Hydro"]
@@ -170,9 +170,9 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
     # Failed simulation
     output = [
         f"Genrich {genlv}/{enrlv}, AB {ablv}",
-        f"{minerqty}x Miner {minerlv} at {mboostlv}/{remotelv} targeting {boostqty} boosts",
+        f"{minerqty}x Miner {minerlv} at {mboostlv}/{remotelv} targeting {boostqty} artifact boosts",
         f"DRS{drslv} starting with random roid sizes {base_roids} totalling {sum(base_roids)}h",
-        f"First genrich at {genrich_start_min} mins",
-        f"Simulation failed with given parameters!"
+        f"First genrich at {to_dur(genrich_delay)} after start",
+        f"Simulation failed with given parameters!",
     ]
     return output, None, None, None, enr_base
