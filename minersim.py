@@ -95,7 +95,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
         while time < genrich_delay:
             sim_log.append([time, boosts, tank/minerqty, sum(roids)])
             for i in range(8):
-                field.append([time, f"r{i:02}", roids[i], pulled[i]])
+                field.append([time, f"r{i:02}", roids[i], 0])
             time += tick_len
 
         # 1st genrich
@@ -106,7 +106,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
         while time < genrich_delay + genrich_cd:
             sim_log.append([time, boosts, tank/minerqty, sum(roids)])
             for i in range(12):
-                field.append([time, f"r{i:02}", roids[i], pulled[i]])
+                field.append([time, f"r{i:02}", roids[i], 0])
             time += tick_len
 
         # 2nd genrich
@@ -117,7 +117,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
         while time < genrich_delay + 2 * genrich_cd:
             sim_log.append([time, boosts, tank/minerqty, sum(roids)])
             for i in range(14):
-                field.append([time, f"r{i:02}", roids[i], pulled[i]])
+                field.append([time, f"r{i:02}", roids[i], 0])
             time += tick_len
 
         pulled = [0 for _ in roids]
