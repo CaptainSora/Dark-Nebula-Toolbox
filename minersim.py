@@ -4,14 +4,14 @@ from random import uniform
 
 from pandas import DataFrame as df
 
-GEN = [0, 120, 160, 200, 240, 280, 320, 400, 480, 560, 640, 720, 800, 1000, 1200, 1400]
-ENR = [1, 1.08, 1.16, 1.24, 1.32, 1.4, 1.48, 1.64, 1.8, 1.96, 2.28, 2.6, 2.92, 3.24, 3.56, 4.2]
-AB = [0, 10, 20, 30, 40, 60, 150,  250, 400, 550, 800, 1000, 1200, 1400, 1700, 2000]
-MBOOST = [1, 1.25, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 7, 8, 9, 10]
-REMOTE = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 14, 14]
-MINER = [0, 6, 7.5, 12, 24, 60, 80, 92.3]
-HMAX = 1500
-DRSHYDRO = [0, 0, 0, 0, 0, 0, 0, 400, 500, 600, 700, 800, 900]
+GENESIS = [0, 120, 160, 200, 240, 280, 320, 400, 480, 560, 640, 720, 800, 1000, 1200, 1400]
+ENRICH = [1, 1.08, 1.16, 1.24, 1.32, 1.4, 1.48, 1.64, 1.8, 1.96, 2.28, 2.6, 2.92, 3.24, 3.56, 4.2]
+ARTIFACT_BOOST = [0, 10, 20, 30, 40, 60, 150,  250, 400, 550, 800, 1000, 1200, 1400, 1700, 2000]
+MINING_BOOST = [1, 1.25, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 7, 8, 9, 10]
+REMOTE_MINING = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 14, 14]
+MINER_SPEED = [0, 6, 7.5, 12, 24, 60, 80, 92.3]
+DRS_STARTING_HYDRO = [0, 0, 0, 0, 0, 0, 0, 400, 500, 600, 700, 800, 900]
+H_MAX = 1500
 
 
 @dataclass(kw_only=True)
@@ -30,26 +30,8 @@ class PlayerInputs:
 
 
 class Strategy:
-    def __init__(self):
-        self._GEN = [
-            0, 120, 160, 200, 240, 280, 320, 400, 480, 560, 640, 720, 800,
-            1000, 1200, 1400
-        ]
-        self._ENR = [
-            1, 1.08, 1.16, 1.24, 1.32, 1.4, 1.48, 1.64, 1.8, 1.96, 2.28, 2.6, 
-            2.92, 3.24, 3.56, 4.2
-        ]
-        self._AB = [
-            0, 10, 20, 30, 40, 60, 150,  250, 400, 550, 800, 1000,
-            1200, 1400, 1700, 2000
-        ]
-        self._MBOOST = [
-            1, 1.25, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 7, 8, 9, 10
-        ]
-        self._REMOTE = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 14, 14]
-        self._MINER = [0, 6, 7.5, 12, 24, 60, 80, 92.3]
-        self._HMAX = 1500
-        self._DRSHYDRO = [0, 0, 0, 0, 0, 0, 0, 400, 500, 600, 700, 800, 900]
+    def __init__(self, inputs: PlayerInputs):
+        pass
     
     def run(self):
         pass
@@ -102,23 +84,23 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
     """
     # Randomly generate hydro roid values
     # Assuming uniformly generated values within 10% of the average hydro value in sector
-    base_roids = [round(uniform(DRSHYDRO[drslv] / 8 * 0.9, DRSHYDRO[drslv] / 8 * 1.1)) for _ in range(7)]
-    base_roids.append(DRSHYDRO[drslv] - sum(base_roids))
+    base_roids = [round(uniform(DRS_STARTING_HYDRO[drslv] / 8 * 0.9, DRS_STARTING_HYDRO[drslv] / 8 * 1.1)) for _ in range(7)]
+    base_roids.append(DRS_STARTING_HYDRO[drslv] - sum(base_roids))
     base_roids.extend([0 for _ in range(6)])
     # Total mining speed in h/min
-    mspeed = MINER[minerlv] * MBOOST[mboostlv] * REMOTE[remotelv] / 4 * minerqty
+    mspeed = MINER_SPEED[minerlv] * MINING_BOOST[mboostlv] * REMOTE_MINING[remotelv] / 4 * minerqty
     # Total hydro drained per roid per tick
-    drain = mspeed / REMOTE[remotelv] / 60 * tick_len
+    drain = mspeed / REMOTE_MINING[remotelv] / 60 * tick_len
 
     # Re-enrich target level
-    enr_base = int(HMAX / ENR[enrlv])
+    enr_base = int(H_MAX / ENRICH[enrlv])
 
     def enrich(roidlist):
-        return [min(floor(r * ENR[enrlv]), HMAX) for r in roidlist]
+        return [min(floor(r * ENRICH[enrlv]), H_MAX) for r in roidlist]
 
     def rmtargets(roidlist):
         targets = sorted(enumerate(roidlist), key=lambda x: x[1], reverse=True)
-        return [t[0] for t in targets][:REMOTE[remotelv]]
+        return [t[0] for t in targets][:REMOTE_MINING[remotelv]]
     
     def tick(roidlist, pulledlist, rmtargets):
         return [
@@ -166,7 +148,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
                 field.append([time, f"r{i:02}", roids[i], 0])
 
         # 1st genrich
-        roids[8:12] = [GEN[genlv] // 4 for _ in range(4)]
+        roids[8:12] = [GENESIS[genlv] // 4 for _ in range(4)]
         roids = enrich(roids)
         output.append(f"1st Genrich leaves {sum(roids)} total hydro")
         sim_log.append([time, boosts, tank/minerqty, sum(roids)])
@@ -178,7 +160,7 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
                 field.append([time, f"r{i:02}", roids[i], 0])
 
         # 2nd genrich
-        roids[12:14] = [GEN[genlv] // 4 for _ in range(2)]
+        roids[12:14] = [GENESIS[genlv] // 4 for _ in range(2)]
         roids = enrich(roids)
         output.append(f"2nd Genrich leaves {sum(roids)} total hydro")
         sim_log.append([time, boosts, tank/minerqty, sum(roids)])
@@ -191,14 +173,14 @@ def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty,
             time += tick_len
             # Mine
             if time > genrich_delay + genrich_cd + mining_delay:
-                tank += drain * REMOTE[remotelv]
+                tank += drain * REMOTE_MINING[remotelv]
                 roids, pulled = tick(roids, pulled, targets)
             sim_log.append([time, boosts, tank/minerqty, sum(roids)])
             for i in range(14):
                 field.append([time, f"r{i:02}", roids[i], pulled[i]])
             # Boost and move
-            if tank >= AB[ablv] * minerqty:
-                tank -= AB[ablv] * minerqty
+            if tank >= ARTIFACT_BOOST[ablv] * minerqty:
+                tank -= ARTIFACT_BOOST[ablv] * minerqty
                 boosts += minerqty
                 targets = rmtargets(roids)
             # Enrich
