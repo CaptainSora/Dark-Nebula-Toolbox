@@ -13,6 +13,25 @@ HMAX = 1500
 DRSHYDRO = [0, 0, 0, 0, 0, 0, 0, 400, 500, 600, 700, 800, 900]
 
 
+class Simulation:
+    def __init__(self):
+        self._valid = False
+
+    @property
+    def valid(self):
+        return self._valid
+    
+    @staticmethod
+    def to_dur(time):
+        return f"{time//60:02}m{time%60:02}s"
+    
+    def set_strategy(strat):
+        pass
+    
+    def run(self):
+        pass
+
+
 def to_dur(incr):
     return f"{incr//60:02}m{incr%60:02}s"
 
