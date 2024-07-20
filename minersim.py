@@ -28,12 +28,24 @@ class PlayerInputs:
     genrich_start_min: int
     tick_len: int = 10
 
+
 class Strategy:
     def __init__(self):
-        self._GEN = [0, 120, 160, 200, 240, 280, 320, 400, 480, 560, 640, 720, 800, 1000, 1200, 1400]
-        self._ENR = [1, 1.08, 1.16, 1.24, 1.32, 1.4, 1.48, 1.64, 1.8, 1.96, 2.28, 2.6, 2.92, 3.24, 3.56, 4.2]
-        self._AB = [0, 10, 20, 30, 40, 60, 150,  250, 400, 550, 800, 1000, 1200, 1400, 1700, 2000]
-        self._MBOOST = [1, 1.25, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 7, 8, 9, 10]
+        self._GEN = [
+            0, 120, 160, 200, 240, 280, 320, 400, 480, 560, 640, 720, 800,
+            1000, 1200, 1400
+        ]
+        self._ENR = [
+            1, 1.08, 1.16, 1.24, 1.32, 1.4, 1.48, 1.64, 1.8, 1.96, 2.28, 2.6, 
+            2.92, 3.24, 3.56, 4.2
+        ]
+        self._AB = [
+            0, 10, 20, 30, 40, 60, 150,  250, 400, 550, 800, 1000,
+            1200, 1400, 1700, 2000
+        ]
+        self._MBOOST = [
+            1, 1.25, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 7, 8, 9, 10
+        ]
         self._REMOTE = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 14, 14]
         self._MINER = [0, 6, 7.5, 12, 24, 60, 80, 92.3]
         self._HMAX = 1500
@@ -49,17 +61,17 @@ class Simulation:
         self._inputs = inputs
 
     @property
-    def valid(self):
+    def valid(self) -> None:
         return self._valid
     
     @staticmethod
-    def to_dur(time):
+    def to_dur(time: int) -> str:
         return f"{time//60:02}m{time%60:02}s"
     
-    def set_strategy(strat):
+    def set_strategy(strat: Strategy) -> None:
         pass
     
-    def run(self):
+    def run(self) -> None:
         pass
 
 
