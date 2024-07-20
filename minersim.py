@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from math import floor
 from random import uniform
 
@@ -12,6 +13,20 @@ MINER = [0, 6, 7.5, 12, 24, 60, 80, 92.3]
 HMAX = 1500
 DRSHYDRO = [0, 0, 0, 0, 0, 0, 0, 400, 500, 600, 700, 800, 900]
 
+
+@dataclass(kw_only=True)
+class PlayerInputs:
+    drslv: int
+    genlv: int
+    enrlv: int
+    ablv: int
+    mboostlv: int
+    remotelv: int
+    minerlv: int
+    minerqty: int
+    boostqty: int
+    genrich_start_min: int
+    tick_len: int = 10
 
 class Strategy:
     def __init__(self):
@@ -29,8 +44,9 @@ class Strategy:
 
 
 class Simulation:
-    def __init__(self):
+    def __init__(self, inputs: PlayerInputs):
         self._valid = False
+        self._inputs = inputs
 
     @property
     def valid(self):
