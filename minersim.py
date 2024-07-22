@@ -10,26 +10,32 @@ from game_constants import *
 
 class HydroField:
     def __init__(self, total_hydro: int) -> None:
-        self._roids = [0 for _ in range(14)]
-        self._collected = [0 for _ in range(14)]
-        self._roids[0:7] = [
+        self._roids = [0 for _ in range(MAX_ROIDS)]
+        self._collected = [0 for _ in range(MAX_ROIDS)]
+        self._roids[0:START_ROIDS-1] = [
             round(uniform(total_hydro / 8 * 0.9, total_hydro / 8 * 1.1))
-            for _ in range(7)
+            for _ in range(START_ROIDS-1)
         ]
-        self._roids[7] = total_hydro - sum(self._roids)
+        self._roids[START_ROIDS-1] = total_hydro - sum(self._roids)
         self._gen_counter = 0
     
     def genrich(self, gen_amt: int, enr_mult: float) -> None:
         # Genesis
-        new_roid = gen_amt // 4
+        new_roid = gen_amt // GENESIS_ROIDS
         if self._gen_counter == 0:
-            self._roids[8:12] = [new_roid for _ in range(4)]
+            self._roids[START_ROIDS:START_ROIDS+GENESIS_ROIDS] = (
+                [new_roid for _ in range(GENESIS_ROIDS)]
+            )
         elif self._gen_counter == 1:
-            self._roids[13:] = [new_roid for _ in range(2)]
+            self._roids[START_ROIDS+GENESIS_ROIDS:MAX_ROIDS] = (
+                [new_roid for _ in range(
+                    MAX_ROIDS - (START_ROIDS+GENESIS_ROIDS)
+                )]
+            )
         self._gen_counter += 1
         # Enrich
         self._roids = [min(floor(r * enr_mult), H_MAX) for r in self._roids]
-        self._drained = [0 for _ in range(14)]
+        self._drained = [0 for _ in range(MAX_ROIDS)]
 
     def get_targets(self) -> list[int]:
         return [
@@ -51,7 +57,7 @@ class HydroField:
         return df.from_records(
             [
                 [f"r{i:02}", self._roids[i], self._collected[i]]
-                for i in range(14)
+                for i in range(MAX_ROIDS)
             ], columns=["Roid", "Remaining", "Collected"]
         )
 
@@ -87,7 +93,7 @@ class PlayerInputs:
         return (
             MINER_SPEED[self.minerlv]
             * MINING_BOOST[self.mboostlv]
-            * REMOTE_MINING[self.remotelv] / 4
+            * REMOTE_MINING[self.remotelv] / REMOTE_MINING_REDUCTION
             * self.minerqty
         )
 
