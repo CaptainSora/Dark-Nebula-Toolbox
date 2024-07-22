@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from dataclasses import dataclass
 from math import floor
 from random import uniform
@@ -12,6 +13,54 @@ REMOTE_MINING = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 14, 14]
 MINER_SPEED = [0, 6, 7.5, 12, 24, 60, 80, 92.3]
 DRS_STARTING_HYDRO = [0, 0, 0, 0, 0, 0, 0, 400, 500, 600, 700, 800, 900]
 H_MAX = 1500
+
+
+class HydroField:
+    def __init__(self, total_hydro: int) -> None:
+        self._roids = [0 for _ in range(14)]
+        self._collected = [0 for _ in range(14)]
+        self._roids[0:7] = [
+            round(uniform(total_hydro / 8 * 0.9, total_hydro / 8 * 1.1))
+            for _ in range(7)
+        ]
+        self._roids[7] = total_hydro - sum(self._roids)
+        self._gen_counter = 0
+    
+    def genrich(self, gen_amt: int, enr_mult: float) -> None:
+        # Genesis
+        new_roid = gen_amt // 4
+        if self._gen_counter == 0:
+            self._roids[8:12] = [new_roid for _ in range(4)]
+        elif self._gen_counter == 1:
+            self._roids[13:] = [new_roid for _ in range(2)]
+        self._gen_counter += 1
+        # Enrich
+        self._roids = [min(floor(r * enr_mult), H_MAX) for r in self._roids]
+        self._drained = [0 for _ in range(14)]
+
+    def get_targets(self) -> list[int]:
+        return [
+            idx for idx, value in sorted(
+                enumerate(self._roids), key=lambda x: x[1], reverse=True
+            )
+        ]
+
+    def collect(self, total_amt: float, targets: Iterable[int]) -> None:
+        amt_per_roid = total_amt / len(targets)
+        for idx in targets:
+            self._collected[idx] += min(self._roids[idx], amt_per_roid)
+            self._roids[idx] -= min(self._roids[idx], amt_per_roid)
+
+    def get_total_hydro(self) -> float:
+        return sum(self._roids)
+    
+    def get_field_state(self) -> df:
+        return df.from_records(
+            [
+                [f"r{i:02}", self._roids[i], self._collected[i]]
+                for i in range(14)
+            ], columns=["Roid", "Remaining", "Collected"]
+        )
 
 
 @dataclass(kw_only=True, frozen=True)
