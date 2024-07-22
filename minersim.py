@@ -31,7 +31,16 @@ class PlayerInputs:
 
 class Strategy:
     def __init__(self, inputs: PlayerInputs):
-        pass
+        self._gen = GENESIS[inputs.genlv]
+        self._enr = ENRICH[inputs.enrlv]
+        self._ab = ARTIFACT_BOOST[inputs.ablv]
+        self._mspeed = (
+            MINER_SPEED[inputs.minerlv]
+            * MINING_BOOST[inputs.mboostlv]
+            * REMOTE_MINING[inputs.remotelv] / 4
+            * inputs.minerqty
+        )
+        self._inputs = inputs
     
     def run(self):
         pass
