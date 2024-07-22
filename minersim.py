@@ -30,7 +30,7 @@ class PlayerInputs:
 
 
 class Strategy:
-    def __init__(self, inputs: PlayerInputs):
+    def __init__(self, inputs: PlayerInputs) -> None:
         self._gen = GENESIS[inputs.genlv]
         self._enr = ENRICH[inputs.enrlv]
         self._ab = ARTIFACT_BOOST[inputs.ablv]
@@ -42,12 +42,12 @@ class Strategy:
         )
         self._inputs = inputs
     
-    def run(self):
+    def run(self) -> None:
         pass
 
 
 class Simulation:
-    def __init__(self, inputs: PlayerInputs):
+    def __init__(self, inputs: PlayerInputs) -> None:
         self._valid = False
         self._inputs = inputs
 
