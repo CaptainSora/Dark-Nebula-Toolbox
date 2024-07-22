@@ -14,7 +14,7 @@ DRS_STARTING_HYDRO = [0, 0, 0, 0, 0, 0, 0, 400, 500, 600, 700, 800, 900]
 H_MAX = 1500
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class PlayerInputs:
     drslv: int
     genlv: int
@@ -28,18 +28,30 @@ class PlayerInputs:
     genrich_start_min: int
     tick_len: int = 10
 
+    @property
+    def gen(self) -> int:
+        return GENESIS[self.genlv]
+    
+    @property
+    def enr(self) -> float:
+        return ENRICH[self.enrlv]
+    
+    @property
+    def ab(self) -> int:
+        return ARTIFACT_BOOST[self.ablv]
+    
+    @property
+    def mspeed(self) -> float:
+        return (
+            MINER_SPEED[self.minerlv]
+            * MINING_BOOST[self.mboostlv]
+            * REMOTE_MINING[self.remotelv] / 4
+            * self.minerqty
+        )
+
 
 class Strategy:
     def __init__(self, inputs: PlayerInputs) -> None:
-        self._gen = GENESIS[inputs.genlv]
-        self._enr = ENRICH[inputs.enrlv]
-        self._ab = ARTIFACT_BOOST[inputs.ablv]
-        self._mspeed = (
-            MINER_SPEED[inputs.minerlv]
-            * MINING_BOOST[inputs.mboostlv]
-            * REMOTE_MINING[inputs.remotelv] / 4
-            * inputs.minerqty
-        )
         self._inputs = inputs
     
     def run(self) -> None:
