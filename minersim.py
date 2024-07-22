@@ -21,18 +21,14 @@ class HydroField:
     
     def genrich(self, gen_amt: int, enr_mult: float) -> None:
         # Genesis
-        new_roid = gen_amt // GENESIS_ROIDS
-        if self._gen_counter == 0:
-            self._roids[START_ROIDS:START_ROIDS+GENESIS_ROIDS] = (
-                [new_roid for _ in range(GENESIS_ROIDS)]
+        new_roid_amt = gen_amt // GENESIS_ROIDS
+        cur_roids = START_ROIDS + self._gen_counter
+        if cur_roids < MAX_ROIDS:
+            new_roids = min(GENESIS_ROIDS, MAX_ROIDS - cur_roids)
+            self._roids[cur_roids:cur_roids+new_roids] = (
+                [new_roid_amt for _ in range(new_roids)]
             )
-        elif self._gen_counter == 1:
-            self._roids[START_ROIDS+GENESIS_ROIDS:MAX_ROIDS] = (
-                [new_roid for _ in range(
-                    MAX_ROIDS - (START_ROIDS+GENESIS_ROIDS)
-                )]
-            )
-        self._gen_counter += 1
+            self._gen_counter += new_roids
         # Enrich
         self._roids = [min(floor(r * enr_mult), H_MAX) for r in self._roids]
         self._drained = [0 for _ in range(MAX_ROIDS)]
