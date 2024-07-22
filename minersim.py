@@ -100,11 +100,34 @@ class PlayerInputs:
 
 
 class Strategy:
-    def __init__(self, inputs: PlayerInputs) -> None:
+    def __init__(self, inputs: PlayerInputs, hydrofield: HydroField) -> None:
         self._inputs = inputs
+        self._hydrofield = hydrofield
+        self._mining_progress_log = []
+        self._hydro_field_log = []
     
     def run(self) -> None:
+        # To be overridden by concrete subclasses
         pass
+
+    def log(self) -> None:
+        pass
+
+    def get_mining_progress_log(self) -> df:
+        return df.from_records(
+            self._mining_progress_log,
+            columns=["Time", "Boosts", "Tank", "Total Hydro"]
+        )
+    
+    def get_hydro_field_log(self) -> df:
+        return df.from_records(
+            self._hydro_field_log,
+            columns=["Time", "Roid", "Remaining", "Collected"]
+        ).melt(
+            ["Time", "Roid"],
+            var_name="Type",
+            value_name="Hydro"
+        )
 
 
 class Simulation:
