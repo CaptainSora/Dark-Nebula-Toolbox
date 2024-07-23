@@ -125,9 +125,14 @@ class Strategy:
         )
 
 
+class ContinuousMining(Strategy):
+    pass
+
+
 class Simulation:
     def __init__(self, inputs: PlayerInputs) -> None:
         self._valid = False
+        self._strategy = None
         self._inputs = inputs
 
     @property
@@ -138,8 +143,10 @@ class Simulation:
     def to_dur(time: int) -> str:
         return f"{time//60:02}m{time%60:02}s"
     
-    def set_strategy(strat: Strategy) -> None:
-        pass
+    def set_strategy(self, strat: Strategy) -> None:
+        hf = HydroField(DRS_STARTING_HYDRO[self._inputs.drslv])
+        if strat == "Continuous Mining":
+            self._strategy = ContinuousMining(self._inputs, hf)
     
     def run(self) -> None:
         pass
