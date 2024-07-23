@@ -2,6 +2,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from math import floor
 from random import uniform
+from typing import Self
 
 from pandas import DataFrame as df
 
@@ -18,6 +19,13 @@ class HydroField:
         ]
         self._roids[START_ROIDS-1] = total_hydro - sum(self._roids)
         self._gen_counter = 0
+    
+    def copy(self) -> Self:
+        new_hf = HydroField(0)
+        new_hf._roids = self._roids[:]
+        new_hf._collected = self._collected[:]
+        new_hf._gen_counter = self._gen_counter
+        return new_hf
     
     def genrich(self, gen_amt: int, enr_mult: float) -> None:
         # Genesis
