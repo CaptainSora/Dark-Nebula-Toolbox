@@ -8,7 +8,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from minersim import simulate, to_dur
+from minersim import *
 
 
 VERSION = "0.4.0 (Beta)"
@@ -101,33 +101,29 @@ default("field_long", None)
 
 default("DRS Time", 10)
 
-default("Anim", False)
-
-
-def get_simulation_results():
+def get_simulation() -> None:
     if any([st.session_state[mod.name] is None for mod in module_inputs]):
         return
-    (
-        st.session_state["output"],
-        st.session_state["log"],
-        st.session_state["field_wide"],
-        st.session_state["field_long"],
-        st.session_state["enr_base"]
-    ) = simulate(
-        st.session_state["DRS Level"],
-        st.session_state["Genesis"],
-        st.session_state["Enrich"],
-        st.session_state["Artifact Boost"],
-        st.session_state["Mining Boost"],
-        st.session_state["Remote Mining"],
-        st.session_state["Miner Level"],
-        st.session_state["Miner Quantity"],
-        st.session_state["Target Number of Artifact Boosts"],
-        st.session_state["First Genrich (Minutes)"],
+    inputs = PlayerInputs(
+        drslv=st.session_state["DRS Level"],
+        genlv=st.session_state["Genesis"],
+        enrlv=st.session_state["Enrich"],
+        ablv=st.session_state["Artifact Boost"],
+        mboostlv=st.session_state["Mining Boost"],
+        remotelv=st.session_state["Remote Mining"],
+        minerlv=st.session_state["Miner Level"],
+        minerqty=st.session_state["Miner Quantity"],
+        boostqty=st.session_state["Target Number of Artifact Boosts"],
+        _genrich_start_min=st.session_state["First Genrich (Minutes)"]
+    )
+    st.session_state["Simulation"] = (
+        Simulation(inputs)
+        .set_strategy("Continuous Mining")
+        .run()
     )
 
 def make_linechart(log, time):
-    line = alt.Chart(log[["Time", "Total Hydro", "Max Hydro"]]).mark_line().encode(
+    line = alt.Chart(log[["Time", "Total Hydro"]]).mark_line().encode(
         alt.X("Time")
             .scale(domain=(0, log["Time"].values[-1]), nice=False)
             .axis(title="DRS Time (seconds)"),
@@ -148,22 +144,18 @@ def make_barchart(field, time):
         color="Type"
     )
 
-    rule = alt.Chart(pd.DataFrame({"y": [1500, st.session_state["enr_base"]]})).mark_rule(color="red").encode(alt.Y("y"))
+    rule = alt.Chart(pd.DataFrame({"y": [1500]})).mark_rule(color="red").encode(alt.Y("y"))
 
     return bar + rule
 
-st.button("Simulate!", on_click=get_simulation_results)
+st.button("Simulate!", on_click=get_simulation)
 
 st.warning("Warning: Crunch is currently unsupported by the mining simulation", icon="⚠️")
 
-if all([
-        st.session_state["output"] is not None,
-        st.session_state["log"] is not None,
-        st.session_state["field_long"] is not None
-    ]):
-    st.write(st.session_state["output"])
-    log = st.session_state["log"]
-    field = st.session_state["field_long"]
+if st.session_state["Simulation"] is not None and st.session_state["Simulation"].valid:
+    log = st.session_state["Simulation"]._strategy.get_mining_progress_log()
+    field = st.session_state["Simulation"]._strategy.get_hydro_field_log()
+    st.write(log)
 
     time_min = 0
     time_max = log["Time"].values[-1]
