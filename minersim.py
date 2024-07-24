@@ -58,13 +58,11 @@ class HydroField:
     def get_total_hydro(self) -> float:
         return sum(self._roids)
     
-    def get_field_state(self) -> df:
-        return df.from_records(
-            [
-                [f"r{i:02}", self._roids[i], self._collected[i]]
-                for i in range(MAX_ROIDS)
-            ], columns=["Roid", "Remaining", "Collected"]
-        )
+    def get_field_state(self) -> list[list[str | float]]:
+        return [
+            [f"r{i:02}", self._roids[i], self._collected[i]]
+            for i in range(MAX_ROIDS)
+        ]
     
     def drained_roid(self) -> bool:
         return all([
