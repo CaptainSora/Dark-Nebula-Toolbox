@@ -40,7 +40,7 @@ class HydroField:
             self._gen_counter += new_roids
         # Enrich
         self._roids = [min(floor(r * enr_mult), H_MAX) for r in self._roids]
-        self._drained = [0 for _ in range(MAX_ROIDS)]
+        self._collected = [0 for _ in range(MAX_ROIDS)]
 
     def get_targets(self) -> list[int]:
         return [
