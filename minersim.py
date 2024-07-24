@@ -224,6 +224,30 @@ class ContinuousMining(Strategy):
                 if self._time >= delay_reference + self._mining_delay:
                     self._tank += self._inputs.total_mining_speed
                     self._hf.collect(self._inputs.total_mining_speed, targets)
+                self.log()
+                # Boost and Move
+                if self._tank >= self._inputs.ab * self._inputs.minerqty:
+                    self._tank -= self._inputs.ab * self._inputs.minerqty
+                    self._boosts += self._inputs.minerqty
+                    targets = self.get_remote_targets()
+                # Enrich
+                if self._time >= self._last_genrich + self._inputs.genrich_cd:
+                    self._hf.genrich()
+                    self._last_genrich = self._time
+                    self.log_mining_progress()
+                # Checks
+                if self._hf.drained_roid():
+                    # Increase delay and retry
+                    self._mining_delay += self._inputs.tick_len
+                    break
+                if self._boosts >= self._inputs.boostqty:
+                    return True
+            else:
+                # Exceeded max simulation time
+                return False
+        
+        # Exceeded max mining delay
+        return False
 
 
 class Simulation:
