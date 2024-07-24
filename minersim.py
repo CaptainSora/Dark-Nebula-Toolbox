@@ -78,7 +78,8 @@ class PlayerInputs:
     minerlv: int
     minerqty: int
     boostqty: int
-    genrich_start_min: int
+    _genrich_start_min: int
+    _genrich_lag: int = 0
     tick_len: int = 10
 
     @property
@@ -101,13 +102,21 @@ class PlayerInputs:
             * REMOTE_MINING[self.remotelv] / REMOTE_MINING_REDUCTION
             * self.minerqty
         )
+    
+    @property
+    def genrich_start(self) -> int:
+        return self._genrich_start_min * 60
+    
+    @property
+    def genrich_cd(self) -> int:
+        return 5 * 60 + self._genrich_lag
 
 
 class Strategy(ABC):
     def __init__(self, inputs: PlayerInputs, hf: HydroField) -> None:
         self._inputs = inputs
         self._base_hf = hf
-        self._base_time = inputs.genrich_start_min
+        self._base_time = 0
         self._base_mining_progress_log = []
         self._base_hydro_field_log = []
         self._mining_delay = 0
@@ -116,6 +125,7 @@ class Strategy(ABC):
     def _reset(self) -> None:
         self._hf = self._base_hf.copy()
         self._time = self._base_time
+        self._last_genrich = self._base_time
         self._mining_progress_log = self._base_mining_progress_log[:]
         self._hydro_field_log = self._base_hydro_field_log[:]
         self._tank = 0
@@ -157,7 +167,31 @@ class Strategy(ABC):
 
 
 class ContinuousMining(Strategy):
-    pass
+    def _base_field_setup(self) -> None:
+        # Log starting values
+        self.log()
+        while self._time < self._inputs.genrich_start:
+            self._time += self._inputs.tick_len
+            self.log()
+        # First genrich
+        self._hf.genrich()
+        self.log()
+        # Log intermediate values
+        while self._time < self._inputs.genrich_start + self._inputs.genrich_cd:
+            self._time += self._inputs.tick_len
+            self.log()
+        # Second genrich
+        self._hf.genrich()
+        self.log()
+        # Set as base values
+        self._base_hf = self._hf.copy()
+        self._base_time = self._time  # The same tick as 2nd genrich
+        self._base_mining_progress_log = self._mining_progress_log[:]
+        self._base_hydro_field_log = self._hydro_field_log[:]
+    
+    def run(self) -> bool:
+        self._base_field_setup()
+        self._reset()
 
 
 class Simulation:
