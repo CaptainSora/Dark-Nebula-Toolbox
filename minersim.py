@@ -147,6 +147,10 @@ class Strategy(ABC):
     def run(self) -> bool:
         pass
 
+    def genrich_and_log(self) -> None:
+        self._hf.genrich(self._inputs.gen, self._inputs.enr)
+        self.log_mining_progress()
+
     def log(self) -> None:
         self.log_mining_progress()
         self.log_hydro_field()
@@ -196,15 +200,13 @@ class ContinuousMining(Strategy):
             self._time += self._inputs.tick_len
             self.log()
         # First genrich
-        self._hf.genrich()
-        self.log()
+        self.genrich_and_log()
         # Log intermediate values
         while self._time < self._inputs.genrich_start + self._inputs.genrich_cd:
             self._time += self._inputs.tick_len
             self.log()
         # Second genrich
-        self._hf.genrich()
-        self.log()
+        self.genrich_and_log()
         # Set as base values
         self._base_hf = self._hf.copy()
         self._base_time = self._time  # The same tick as 2nd genrich
@@ -215,6 +217,7 @@ class ContinuousMining(Strategy):
         self._base_field_setup()
         while self._mining_delay < self._max_mining_delay:
             self._reset()
+            self._time += self._inputs.tick_len
             targets = self.get_remote_targets()
             delay_reference = self._last_genrich
             while self._time < self._max_time:
@@ -230,9 +233,8 @@ class ContinuousMining(Strategy):
                     targets = self.get_remote_targets()
                 # Enrich
                 if self._time >= self._last_genrich + self._inputs.genrich_cd:
-                    self._hf.genrich()
+                    self.genrich_and_log()
                     self._last_genrich = self._time
-                    self.log_mining_progress()
                 # Checks
                 if self._hf.drained_roid():
                     # Increase delay and retry
@@ -240,9 +242,13 @@ class ContinuousMining(Strategy):
                     break
                 if self._boosts >= self._inputs.boostqty:
                     return True
+                # Tick
+                self._time += self._inputs.tick_len
             else:
                 # Exceeded max simulation time
                 return False
+            # Increase delay
+            self._mining_delay += self._inputs.tick_len
         
         # Exceeded max mining delay
         return False
