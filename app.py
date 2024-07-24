@@ -151,10 +151,22 @@ st.button("Simulate!", on_click=get_simulation)
 
 st.warning("Warning: Crunch is currently unsupported by the mining simulation", icon="⚠️")
 
-if st.session_state["Simulation"] is not None and st.session_state["Simulation"].valid:
-    log = st.session_state["Simulation"]._strategy.get_mining_progress_log()
-    field = st.session_state["Simulation"]._strategy.get_hydro_field_log()
-    st.write(log)
+sim: Simulation = st.session_state["Simulation"]
+if sim is not None and sim.valid:
+    log = sim.strategy.get_mining_progress_log()
+    field = sim.strategy.get_hydro_field_log()
+
+    st.info(
+        f"Delay mining until {to_dur(sim.strategy.get_mining_delay())}"
+        f" after 2nd genrich",
+        icon="📝"
+    )
+
+    st.info(
+        f"{log['Boosts'].values[-1]} artifact boosts mined at "
+        f"{to_dur(log['Time'].values[-1])} DRS time",
+        icon="📝"
+    )
 
     time_min = 0
     time_max = log["Time"].values[-1]
