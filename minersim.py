@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from dataclasses import dataclass
 from math import floor
@@ -102,16 +103,16 @@ class PlayerInputs:
         )
 
 
-class Strategy:
+class Strategy(ABC):
     def __init__(self, inputs: PlayerInputs, hydrofield: HydroField) -> None:
         self._inputs = inputs
         self._hydrofield = hydrofield
         self._mining_progress_log = []
         self._hydro_field_log = []
     
+    @abstractmethod
     def run(self) -> bool:
-        # To be overridden by concrete subclasses
-        return False
+        pass
 
     def log(self) -> None:
         pass
