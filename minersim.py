@@ -189,7 +189,7 @@ class Strategy(ABC):
         )
 
     def get_mining_delay(self) -> int:
-        return self._mining_delay
+        return self._mining_delay + self._inputs.tick_len
     
     def get_remote_targets(self) -> list[int]:
         return self._hf.get_targets()[:self._inputs.remote_max_targets]
@@ -234,6 +234,7 @@ class ContinuousMining(Strategy):
                     self._tank -= self._inputs.ab * self._inputs.minerqty
                     self._boosts += self._inputs.minerqty
                     targets = self.get_remote_targets()
+                    self.log_mining_progress()
                 # Enrich
                 if self._time >= self._last_genrich + self._inputs.genrich_cd:
                     self.genrich_and_log()
