@@ -93,13 +93,9 @@ with right:
             mod.name, min_value=mod.min, max_value=mod.max, step=1, format="%d",
             value=mod.init, key=mod.name, on_change=change_mod_levels)
 
+default("DRS Time", 0)
+default("Simulation", None)
 
-default("output", None)
-default("log", None)
-default("field_wide", None)
-default("field_long", None)
-
-default("DRS Time", 10)
 
 def get_simulation() -> None:
     if any([st.session_state[mod.name] is None for mod in module_inputs]):
