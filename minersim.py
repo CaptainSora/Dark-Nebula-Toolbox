@@ -265,6 +265,10 @@ class Simulation:
     def valid(self) -> None:
         return self._valid
     
+    @property
+    def strategy(self) -> Strategy:
+        return self._strategy
+    
     def set_strategy(self, strat: Strategy) -> Self:
         if strat == "Continuous Mining":
             self._strategy = ContinuousMining(self._inputs)
