@@ -140,10 +140,14 @@ def make_barchart(field, time):
         alt.Y("Hydro")
             .scale(domain=(0, 1500), nice=False)
             .axis(title="Hydrogen per Asteroid", values=[0, 300, 600, 900, 1200, 1500]),
-        color="Type"
+        color="Status"
     )
 
-    rule = alt.Chart(pd.DataFrame({"y": [1500]})).mark_rule(color="red").encode(alt.Y("y"))
+    rule = (
+        alt.Chart(pd.DataFrame({"Max Hydro": [1500]}))
+        .mark_rule(color="red")
+        .encode(alt.Y("Max Hydro"))
+    )
 
     return bar + rule
 

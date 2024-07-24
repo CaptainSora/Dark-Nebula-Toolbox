@@ -184,7 +184,7 @@ class Strategy(ABC):
             columns=["Time", "Roid", "Remaining", "Collected"]
         ).melt(
             ["Time", "Roid"],
-            var_name="Type",
+            var_name="Status",
             value_name="Hydro"
         )
 
