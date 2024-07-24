@@ -107,16 +107,19 @@ class Strategy(ABC):
     def __init__(self, inputs: PlayerInputs, hf: HydroField) -> None:
         self._inputs = inputs
         self._base_hf = hf
+        self._base_time = inputs.genrich_start_min
+        self._base_mining_progress_log = []
+        self._base_hydro_field_log = []
         self._mining_delay = 0
         self._reset()
     
     def _reset(self) -> None:
         self._hf = self._base_hf.copy()
-        self._time = 0
+        self._time = self._base_time
+        self._mining_progress_log = self._base_mining_progress_log[:]
+        self._hydro_field_log = self._base_hydro_field_log[:]
         self._tank = 0
         self._boosts = 0
-        self._mining_progress_log = []
-        self._hydro_field_log = []
     
     @abstractmethod
     def run(self) -> bool:
