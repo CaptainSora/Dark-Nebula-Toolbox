@@ -268,16 +268,17 @@ class Simulation:
     def to_dur(time: int) -> str:
         return f"{time//MINUTE:02}m{time%MINUTE:02}s"
     
-    def set_strategy(self, strat: Strategy) -> None:
+    def set_strategy(self, strat: Strategy) -> Self:
         if strat == "Continuous Mining":
             self._strategy = ContinuousMining(self._inputs)
+        return self
     
-    def run(self) -> None:
+    def run(self) -> Self:
         try:
             self._valid = self._strategy.run()
         except AttributeError:
             self._valid = False
-            return
+        return self
 
 
 def to_dur(incr):
