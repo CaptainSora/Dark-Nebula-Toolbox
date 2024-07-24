@@ -150,14 +150,18 @@ class Strategy(ABC):
         pass
 
     def log(self) -> None:
-        # Mining Progress Log
+        self.log_mining_progress()
+        self.log_hydro_field()
+    
+    def log_mining_progress(self) -> None:
         self._mining_progress_log.append([
             self._time,
             self._boosts,
             self._tank,
             self._hf.get_total_hydro()
         ])
-        # Hydro Field Log
+    
+    def log_hydro_field(self) -> None:
         self._hydro_field_log.extend([
             [self._time, *record]
             for record in self._hf.get_field_state()
