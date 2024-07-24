@@ -109,9 +109,9 @@ class Strategy:
         self._mining_progress_log = []
         self._hydro_field_log = []
     
-    def run(self) -> None:
+    def run(self) -> bool:
         # To be overridden by concrete subclasses
-        pass
+        return False
 
     def log(self) -> None:
         pass
@@ -157,7 +157,11 @@ class Simulation:
             self._strategy = ContinuousMining(self._inputs, hf)
     
     def run(self) -> None:
-        pass
+        try:
+            self._valid = self._strategy.run()
+        except AttributeError:
+            self._valid = False
+            return
 
 
 def to_dur(incr):
