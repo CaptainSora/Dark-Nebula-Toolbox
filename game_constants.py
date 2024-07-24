@@ -12,8 +12,17 @@ REMOTE_MINING_REDUCTION = 4
 # Ship stats
 MINER_SPEED = [0, 6, 7.5, 12, 24, 60, 80, 92.3]
 
+
+### Tested Data
+
 # Hydro fields
 DRS_STARTING_HYDRO = [0, 0, 0, 0, 0, 0, 0, 400, 500, 600, 700, 800, 900]
 H_MAX = 1500
 START_ROIDS = 8
 MAX_ROIDS = 14
+
+
+### Other
+
+# Units
+MINUTE = 60

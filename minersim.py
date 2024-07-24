@@ -115,11 +115,11 @@ class PlayerInputs:
     
     @property
     def genrich_start(self) -> int:
-        return self._genrich_start_min * 60
+        return self._genrich_start_min * MINUTE
     
     @property
     def genrich_cd(self) -> int:
-        return 5 * 60 + self._genrich_lag
+        return 5 * MINUTE + self._genrich_lag
 
 
 class Strategy(ABC):
@@ -131,7 +131,7 @@ class Strategy(ABC):
         self._base_hydro_field_log = []
         self._mining_delay = 0
         self._max_mining_delay = 2 * self._inputs.genrich_cd
-        self._max_time = 40 * 60
+        self._max_time = 40 * MINUTE
         self._reset()
     
     def _reset(self) -> None:
@@ -226,7 +226,7 @@ class Simulation:
     
     @staticmethod
     def to_dur(time: int) -> str:
-        return f"{time//60:02}m{time%60:02}s"
+        return f"{time//MINUTE:02}m{time%MINUTE:02}s"
     
     def set_strategy(self, strat: Strategy) -> None:
         if strat == "Continuous Mining":
@@ -241,7 +241,7 @@ class Simulation:
 
 
 def to_dur(incr):
-    return f"{incr//60:02}m{incr%60:02}s"
+    return f"{incr//MINUTE:02}m{incr%MINUTE:02}s"
 
 
 def simulate(drslv, genlv, enrlv, ablv, mboostlv, remotelv, minerlv, minerqty, 
