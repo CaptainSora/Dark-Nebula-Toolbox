@@ -110,6 +110,10 @@ class PlayerInputs:
         )
     
     @property
+    def remote_max_targets(self) -> int:
+        return REMOTE_MINING[self.remotelv]
+    
+    @property
     def genrich_start(self) -> int:
         return self._genrich_start_min * 60
     
@@ -126,6 +130,8 @@ class Strategy(ABC):
         self._base_mining_progress_log = []
         self._base_hydro_field_log = []
         self._mining_delay = 0
+        self._max_mining_delay = 2 * self._inputs.genrich_cd
+        self._max_time = 40 * 60
         self._reset()
     
     def _reset(self) -> None:
@@ -173,6 +179,9 @@ class Strategy(ABC):
 
     def get_mining_delay(self) -> int:
         return self._mining_delay
+    
+    def get_remote_targets(self) -> list[int]:
+        return self._hf.get_targets()[:self._inputs.remote_max_targets]
 
 
 class ContinuousMining(Strategy):
@@ -200,7 +209,9 @@ class ContinuousMining(Strategy):
     
     def run(self) -> bool:
         self._base_field_setup()
-        self._reset()
+        while self._mining_delay < self._max_mining_delay:
+            self._reset()
+            targets = self.get_remote_targets()
 
 
 class Simulation:
