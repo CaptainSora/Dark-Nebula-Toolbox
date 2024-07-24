@@ -101,12 +101,14 @@ class PlayerInputs:
         return ARTIFACT_BOOST[self.ablv]
     
     @property
-    def mspeed(self) -> float:
+    def total_mining_speed(self) -> float:
+        # Total mining speed in hydro/tick
         return (
             MINER_SPEED[self.minerlv]
             * MINING_BOOST[self.mboostlv]
             * REMOTE_MINING[self.remotelv] / REMOTE_MINING_REDUCTION
             * self.minerqty
+            / MINUTE * self.tick_len
         )
     
     @property
@@ -212,6 +214,12 @@ class ContinuousMining(Strategy):
         while self._mining_delay < self._max_mining_delay:
             self._reset()
             targets = self.get_remote_targets()
+            delay_reference = self._last_genrich
+            while self._time < self._max_time:
+                # Mine
+                if self._time >= delay_reference + self._mining_delay:
+                    self._tank += self._inputs.total_mining_speed
+                    self._hf.collect(self._inputs.total_mining_speed, targets)
 
 
 class Simulation:
