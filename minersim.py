@@ -147,6 +147,9 @@ class Strategy(ABC):
     def run(self) -> bool:
         pass
 
+    def tick(self) -> None:
+        self._time += self._inputs.tick_len
+
     def genrich_and_log(self) -> None:
         self._hf.genrich(self._inputs.gen, self._inputs.enr)
         self.log_mining_progress()
@@ -197,13 +200,13 @@ class ContinuousMining(Strategy):
         # Log starting values
         self.log()
         while self._time < self._inputs.genrich_start:
-            self._time += self._inputs.tick_len
+            self.tick()
             self.log()
         # First genrich
         self.genrich_and_log()
         # Log intermediate values
         while self._time < self._inputs.genrich_start + self._inputs.genrich_cd:
-            self._time += self._inputs.tick_len
+            self.tick()
             self.log()
         # Second genrich
         self.genrich_and_log()
@@ -217,10 +220,10 @@ class ContinuousMining(Strategy):
         self._base_field_setup()
         while self._mining_delay < self._max_mining_delay:
             self._reset()
-            self._time += self._inputs.tick_len
             targets = self.get_remote_targets()
             delay_reference = self._last_genrich
             while self._time < self._max_time:
+                self.tick()
                 # Mine
                 if self._time >= delay_reference + self._mining_delay:
                     self._tank += self._inputs.total_mining_speed
@@ -242,8 +245,6 @@ class ContinuousMining(Strategy):
                     break
                 if self._boosts >= self._inputs.boostqty:
                     return True
-                # Tick
-                self._time += self._inputs.tick_len
             else:
                 # Exceeded max simulation time
                 return False
