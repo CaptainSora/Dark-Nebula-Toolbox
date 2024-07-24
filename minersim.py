@@ -65,6 +65,12 @@ class HydroField:
                 for i in range(MAX_ROIDS)
             ], columns=["Roid", "Remaining", "Collected"]
         )
+    
+    def drained_roid(self) -> bool:
+        return all([
+            self._gen_counter == MAX_ROIDS - START_ROIDS,
+            min(self._roids) == 0
+        ])
 
 
 @dataclass(kw_only=True, frozen=True)
