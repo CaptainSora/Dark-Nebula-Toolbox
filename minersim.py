@@ -104,9 +104,16 @@ class PlayerInputs:
 
 
 class Strategy(ABC):
-    def __init__(self, inputs: PlayerInputs, hydrofield: HydroField) -> None:
+    def __init__(self, inputs: PlayerInputs, hf: HydroField) -> None:
         self._inputs = inputs
-        self._hydrofield = hydrofield
+        self._hf = hf
+        self._mining_delay = 0
+        self._reset()
+    
+    def _reset(self) -> None:
+        self._time = 0
+        self._tank = 0
+        self._boosts = 0
         self._mining_progress_log = []
         self._hydro_field_log = []
     
