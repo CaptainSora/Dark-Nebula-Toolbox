@@ -127,9 +127,9 @@ def make_linechart(log, time):
         alt.X("Time")
             .scale(domain=(0, log["Time"].values[-1]), nice=False)
             .axis(title="DRS Time (seconds)"),
-        alt.Y("Total Hydro") \
-            .scale(domain=(0, 21000), nice=False) \
-            .axis(title="Total Hydrogen in Sector",)
+        alt.Y("Total Hydro")
+            .scale(domain=(0, 21000), nice=False)
+            .axis(title="Total Hydrogen in Sector")
     )
 
     max_hydro = alt.Chart(pd.DataFrame({"y": [21000]})).mark_rule(color="red").encode(alt.Y("y"))
@@ -139,8 +139,11 @@ def make_linechart(log, time):
 
 def make_barchart(field, time):
     bar = alt.Chart(field[field["Time"] == time]).mark_bar().encode(
-        alt.X("Roid").axis(labels=False, title="Asteroids in Sector"),
-        alt.Y("Hydro").axis(title="Hydrogen per Asteroid", values=[0, 300, 600, 900, 1200, 1500]),
+        alt.X("Roid")
+            .axis(labels=False, title="Asteroids in Sector"),
+        alt.Y("Hydro")
+            .scale(domain=(0, 1500), nice=False)
+            .axis(title="Hydrogen per Asteroid", values=[0, 300, 600, 900, 1200, 1500]),
         color="Type"
     )
 
