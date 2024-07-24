@@ -278,5 +278,5 @@ class Simulation:
         return self
 
 
-def to_dur(incr):
-    return f"{incr//MINUTE:02}m{incr%MINUTE:02}s"
+def to_dur(time):
+    return f"{time//MINUTE:02}m{time%MINUTE:02}s"
