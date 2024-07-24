@@ -165,6 +165,9 @@ class Strategy(ABC):
             value_name="Hydro"
         )
 
+    def get_mining_delay(self) -> int:
+        return self._mining_delay
+
 
 class ContinuousMining(Strategy):
     def _base_field_setup(self) -> None:
