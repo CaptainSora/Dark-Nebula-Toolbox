@@ -106,11 +106,12 @@ class PlayerInputs:
 class Strategy(ABC):
     def __init__(self, inputs: PlayerInputs, hf: HydroField) -> None:
         self._inputs = inputs
-        self._hf = hf
+        self._base_hf = hf
         self._mining_delay = 0
         self._reset()
     
     def _reset(self) -> None:
+        self._hf = self._base_hf.copy()
         self._time = 0
         self._tank = 0
         self._boosts = 0
@@ -122,7 +123,18 @@ class Strategy(ABC):
         pass
 
     def log(self) -> None:
-        pass
+        # Mining Progress Log
+        self._mining_progress_log.append([
+            self._time,
+            self._boosts,
+            self._tank,
+            self._hf.get_total_hydro()
+        ])
+        # Hydro Field Log
+        self._hydro_field_log.extend([
+            [self._time, *record]
+            for record in self._hf.get_field_state()
+        ])
 
     def get_mining_progress_log(self) -> df:
         return df.from_records(
