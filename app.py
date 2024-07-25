@@ -220,3 +220,7 @@ if sim is not None and inputs is not None and sim.valid:
                 bar.altair_chart(make_barchart(field, time), use_container_width=True)
                 sleep(0.05 if play_fast else 0.2)
             # pbar.progress(0, text = f"DRS Time: {incr_to_dur(time)}")
+elif sim is not None and inputs is not None:
+    st.error(
+        "Simulation failed to find a solution, please verify your inputs!"
+    )
