@@ -95,12 +95,13 @@ with right:
 
 default("DRS Time", 0)
 default("Simulation", None)
+default("Inputs", None)
 
 
 def get_simulation() -> None:
     if any([st.session_state[mod.name] is None for mod in module_inputs]):
         return
-    inputs = PlayerInputs(
+    st.session_state["Inputs"] = PlayerInputs(
         drslv=st.session_state["DRS Level"],
         genlv=st.session_state["Genesis"],
         enrlv=st.session_state["Enrich"],
@@ -113,7 +114,7 @@ def get_simulation() -> None:
         _genrich_start_min=st.session_state["First Genrich (Minutes)"]
     )
     st.session_state["Simulation"] = (
-        Simulation(inputs)
+        Simulation(st.session_state["Inputs"])
         .set_strategy("Continuous Mining")
         .run()
     )
@@ -156,9 +157,22 @@ st.button("Simulate!", on_click=get_simulation)
 st.warning("Warning: Crunch is currently unsupported by the mining simulation", icon="⚠️")
 
 sim: Simulation = st.session_state["Simulation"]
-if sim is not None and sim.valid:
+inputs: PlayerInputs = st.session_state["Inputs"]
+
+if sim is not None and inputs is not None and sim.valid:
     log = sim.strategy.get_mining_progress_log()
     field = sim.strategy.get_hydro_field_log()
+
+    with st.expander("Initial conditions"):
+        st.markdown(f"""
+        DRS{inputs.drslv} with first genrich at
+        {to_dur(inputs.genrich_start)} DRS time  
+        Genrich {inputs.genlv}/{inputs.enrlv},
+        AB {inputs.ablv},
+        {inputs.minerqty}x Miner {inputs.minerlv} with 
+        {inputs.mboostlv}/{inputs.remotelv} speed  
+        Targeting a total of {inputs.boostqty} artifact boosts
+        """)
 
     st.info(
         f"Delay mining until {to_dur(sim.strategy.get_mining_delay())}"
