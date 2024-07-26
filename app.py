@@ -9,6 +9,7 @@ import plotly.express as px
 import streamlit as st
 
 from minersim import *
+from formatters import format_duration
 
 
 VERSION = "0.4.0 (Beta)"
@@ -166,7 +167,7 @@ if sim is not None and inputs is not None and sim.valid:
     with st.expander("Initial conditions"):
         st.markdown(f"""
         DRS{inputs.drslv} with first genrich at
-        {to_dur(inputs.genrich_start)} DRS time  
+        {format_duration(inputs.genrich_start)} DRS time  
         Genrich {inputs.genlv}/{inputs.enrlv},
         AB {inputs.ablv},
         {inputs.minerqty}x Miner {inputs.minerlv} with 
@@ -175,14 +176,14 @@ if sim is not None and inputs is not None and sim.valid:
         """)
 
     st.info(
-        f"Delay mining until {to_dur(sim.strategy.get_mining_delay())}"
+        f"Delay mining until {format_duration(sim.strategy.get_mining_delay())}"
         f" after 2nd genrich",
         icon="📝"
     )
 
     st.info(
         f"{log['Boosts'].values[-1]} artifact boosts mined at "
-        f"{to_dur(log['Time'].values[-1])} DRS time",
+        f"{format_duration(log['Time'].values[-1])} DRS time",
         icon="📝"
     )
 
@@ -209,13 +210,13 @@ if sim is not None and inputs is not None and sim.valid:
         with col2:
             play_slow = st.button("Play (Slow)")
         with col3:
-            pbar = st.progress(0, text = f"DRS Time: {to_dur(time_min)}")
+            pbar = st.progress(0, text = f"DRS Time: {format_duration(time_min)}")
         line = st.altair_chart(make_linechart(log, time_min), use_container_width=True)
         bar = st.altair_chart(make_barchart(field, time_min), use_container_width=True)
     
         if play_fast or play_slow:
             for time in range(time_min, time_max + 10, 10):
-                pbar.progress(time / time_max, text = f"DRS Time: {to_dur(time)}")
+                pbar.progress(time / time_max, text = f"DRS Time: {format_duration(time)}")
                 line.altair_chart(make_linechart(log, time), use_container_width=True)
                 bar.altair_chart(make_barchart(field, time), use_container_width=True)
                 sleep(0.05 if play_fast else 0.2)
