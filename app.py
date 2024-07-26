@@ -3,13 +3,12 @@ from datetime import datetime as dt
 from time import sleep
 
 import altair as alt
-import numpy as np
 import pandas as pd
-import plotly.express as px
 import streamlit as st
 
 from minersim import *
 from formatters import format_duration
+from strategies import ContinuousMining
 
 
 VERSION = "0.4.0 (Beta)"
@@ -116,7 +115,7 @@ def get_simulation() -> None:
     )
     st.session_state["Simulation"] = (
         Simulation(st.session_state["Inputs"])
-        .set_strategy("Continuous Mining")
+        .set_strategy(ContinuousMining)
         .run()
     )
 

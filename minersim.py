@@ -2,7 +2,6 @@ from typing import Self
 
 from pandas import DataFrame as df
 
-from game_constants import *
 from strategies import MiningStrategy
 from userinput import UserInput
 
@@ -17,9 +16,8 @@ class Simulation:
     def valid(self) -> None:
         return self._valid
     
-    def set_strategy(self, strat: MiningStrategy) -> Self:
-        if strat == "Continuous Mining":
-            self._strategy = ContinuousMining(self._inputs)
+    def set_strategy(self, mining_strategy: type[MiningStrategy]) -> Self:
+        self._strategy = mining_strategy(self._inputs)
         return self
     
     def read_mining_progress_data(self) -> df:
