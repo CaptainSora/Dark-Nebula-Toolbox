@@ -11,6 +11,7 @@ REMOTE_MINING_REDUCTION = 4
 
 # Ship stats
 MINER_SPEED = [0, 6, 7.5, 12, 24, 60, 80, 92.3]
+MINER_TANK = [0, 20, 200, 400, 800, 1200, 1600, 2000]
 
 
 ### Tested Data
