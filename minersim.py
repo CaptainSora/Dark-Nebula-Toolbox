@@ -55,10 +55,12 @@ class HydroField:
             self._collected[idx] += min(self._roids[idx], amt_per_roid)
             self._roids[idx] -= min(self._roids[idx], amt_per_roid)
 
-    def get_total_hydro(self) -> float:
+    @property
+    def total_hydro(self) -> float:
         return sum(self._roids)
     
-    def get_field_state(self) -> list[list[str | float]]:
+    @property
+    def field_state(self) -> list[list[str | float]]:
         return [
             [f"r{i:02}", self._roids[i], self._collected[i]]
             for i in range(MAX_ROIDS)
@@ -72,7 +74,7 @@ class HydroField:
 
 
 @dataclass(kw_only=True, frozen=True)
-class PlayerInputs:
+class UserInput:
     drslv: int
     genlv: int
     enrlv: int
@@ -122,13 +124,13 @@ class PlayerInputs:
         return 5 * MINUTE + self._genrich_lag
 
 
-class Strategy(ABC):
-    def __init__(self, inputs: PlayerInputs) -> None:
+class MiningStrategy(ABC):
+    def __init__(self, inputs: UserInput) -> None:
         self._inputs = inputs
         self._base_hf = HydroField(DRS_STARTING_HYDRO[self._inputs.drslv])
         self._base_time = 0
-        self._base_mining_progress_log = []
-        self._base_hydro_field_log = []
+        self._base_mining_progress_data = []
+        self._base_hydro_field_data = []
         self._mining_delay = 0
         self._max_mining_delay = 2 * self._inputs.genrich_cd
         self._max_time = 40 * MINUTE
@@ -138,8 +140,8 @@ class Strategy(ABC):
         self._hf = self._base_hf.copy()
         self._time = self._base_time
         self._last_genrich = self._base_time
-        self._mining_progress_log = self._base_mining_progress_log[:]
-        self._hydro_field_log = self._base_hydro_field_log[:]
+        self._mining_progress_data = self._base_mining_progress_data[:]
+        self._hydro_field_data = self._base_hydro_field_data[:]
         self._tank = 0
         self._boosts = 0
     
@@ -150,37 +152,37 @@ class Strategy(ABC):
     def tick(self) -> None:
         self._time += self._inputs.tick_len
 
-    def genrich_and_log(self) -> None:
+    def genrich_and_write_data(self) -> None:
         self._hf.genrich(self._inputs.gen, self._inputs.enr)
-        self.log_mining_progress()
+        self.write_mining_progress_data()
 
-    def log(self) -> None:
-        self.log_mining_progress()
-        self.log_hydro_field()
+    def write_all_data(self) -> None:
+        self.write_mining_progress_data()
+        self.write_hydro_field_data()
     
-    def log_mining_progress(self) -> None:
-        self._mining_progress_log.append([
+    def write_mining_progress_data(self) -> None:
+        self._mining_progress_data.append([
             self._time,
             self._boosts,
             self._tank,
-            self._hf.get_total_hydro()
+            self._hf.total_hydro
         ])
     
-    def log_hydro_field(self) -> None:
-        self._hydro_field_log.extend([
+    def write_hydro_field_data(self) -> None:
+        self._hydro_field_data.extend([
             [self._time, *record]
-            for record in self._hf.get_field_state()
+            for record in self._hf.field_state
         ])
 
-    def get_mining_progress_log(self) -> df:
+    def read_mining_progress_log(self) -> df:
         return df.from_records(
-            self._mining_progress_log,
+            self._mining_progress_data,
             columns=["Time", "Boosts", "Tank", "Total Hydro"]
         )
     
-    def get_hydro_field_log(self) -> df:
+    def read_hydro_field_log(self) -> df:
         return df.from_records(
-            self._hydro_field_log,
+            self._hydro_field_data,
             columns=["Time", "Roid", "Remaining", "Collected"]
         ).melt(
             ["Time", "Roid"],
@@ -195,26 +197,26 @@ class Strategy(ABC):
         return self._hf.get_targets()[:self._inputs.remote_max_targets]
 
 
-class ContinuousMining(Strategy):
+class ContinuousMining(MiningStrategy):
     def _base_field_setup(self) -> None:
         # Log starting values
-        self.log()
+        self.write_all_data()
         while self._time < self._inputs.genrich_start:
             self.tick()
-            self.log()
+            self.write_all_data()
         # First genrich
-        self.genrich_and_log()
+        self.genrich_and_write_data()
         # Log intermediate values
         while self._time < self._inputs.genrich_start + self._inputs.genrich_cd:
             self.tick()
-            self.log()
+            self.write_all_data()
         # Second genrich
-        self.genrich_and_log()
+        self.genrich_and_write_data()
         # Set as base values
         self._base_hf = self._hf.copy()
         self._base_time = self._time  # The same tick as 2nd genrich
-        self._base_mining_progress_log = self._mining_progress_log[:]
-        self._base_hydro_field_log = self._hydro_field_log[:]
+        self._base_mining_progress_log = self._mining_progress_data[:]
+        self._base_hydro_field_log = self._hydro_field_data[:]
     
     def run(self) -> bool:
         self._base_field_setup()
@@ -228,16 +230,16 @@ class ContinuousMining(Strategy):
                 if self._time >= delay_reference + self._mining_delay:
                     self._tank += self._inputs.total_mining_speed
                     self._hf.collect(self._inputs.total_mining_speed, targets)
-                self.log()
+                self.write_all_data()
                 # Boost and Move
                 if self._tank >= self._inputs.ab * self._inputs.minerqty:
                     self._tank -= self._inputs.ab * self._inputs.minerqty
                     self._boosts += self._inputs.minerqty
                     targets = self.get_remote_targets()
-                    self.log_mining_progress()
+                    self.write_mining_progress_data()
                 # Enrich
                 if self._time >= self._last_genrich + self._inputs.genrich_cd:
-                    self.genrich_and_log()
+                    self.genrich_and_write_data()
                     self._last_genrich = self._time
                 # Checks
                 if self._hf.drained_roid():
@@ -257,7 +259,7 @@ class ContinuousMining(Strategy):
 
 
 class Simulation:
-    def __init__(self, inputs: PlayerInputs) -> None:
+    def __init__(self, inputs: UserInput) -> None:
         self._valid = False
         self._strategy = None
         self._inputs = inputs
@@ -267,10 +269,10 @@ class Simulation:
         return self._valid
     
     @property
-    def strategy(self) -> Strategy:
+    def strategy(self) -> MiningStrategy:
         return self._strategy
     
-    def set_strategy(self, strat: Strategy) -> Self:
+    def set_strategy(self, strat: MiningStrategy) -> Self:
         if strat == "Continuous Mining":
             self._strategy = ContinuousMining(self._inputs)
         return self

@@ -101,7 +101,7 @@ default("Inputs", None)
 def get_simulation() -> None:
     if any([st.session_state[mod.name] is None for mod in module_inputs]):
         return
-    st.session_state["Inputs"] = PlayerInputs(
+    st.session_state["Inputs"] = UserInput(
         drslv=st.session_state["DRS Level"],
         genlv=st.session_state["Genesis"],
         enrlv=st.session_state["Enrich"],
@@ -157,11 +157,11 @@ st.button("Simulate!", on_click=get_simulation)
 st.warning("Warning: Crunch is currently unsupported by the mining simulation", icon="⚠️")
 
 sim: Simulation = st.session_state["Simulation"]
-inputs: PlayerInputs = st.session_state["Inputs"]
+inputs: UserInput = st.session_state["Inputs"]
 
 if sim is not None and inputs is not None and sim.valid:
-    log = sim.strategy.get_mining_progress_log()
-    field = sim.strategy.get_hydro_field_log()
+    log = sim.strategy.read_mining_progress_log()
+    field = sim.strategy.read_hydro_field_log()
 
     with st.expander("Initial conditions"):
         st.markdown(f"""
