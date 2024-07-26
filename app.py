@@ -55,43 +55,36 @@ module_values = [None for _ in module_inputs]
 
 modnum = 0
 
+
+def set_input_img_field(img: st.container, field: st.container, mod: Module) -> None:
+    # Field must be defined before image for dynamic image switching
+    with field:
+        module_values[modnum] = st.number_input(
+            mod.name, min_value=mod.min, max_value=mod.max, step=1, format="%d",
+            value=mod.init, key=mod.name, on_change=change_mod_levels)
+    with img:
+        if mod.name == "Miner Level":
+            st.image(miner_img_paths[st.session_state["Miner Level"]])
+        else:
+            st.image(f"Img/{mod.path}.webp")
+
+
 ### Inputs
 for _ in range(3):
     for col in st.columns(3, gap="medium"):
         with col:
             img, field = st.columns([1, 3], vertical_alignment="center")
-            mod = module_inputs[modnum]
-            # Field must be defined before image for dynamic image switching
-            with field:
-                module_values[modnum] = st.number_input(
-                    mod.name, min_value=mod.min, max_value=mod.max, step=1, format="%d",
-                    value=mod.init, key=mod.name, on_change=change_mod_levels)
-            with img:
-                if mod.name == "Miner Level":
-                    st.image(miner_img_paths[st.session_state["Miner Level"]])
-                else:
-                    st.image(f"Img/{mod.path}.webp")
+            set_input_img_field(img, field, module_inputs[modnum])
         modnum += 1
 
 left, right = st.columns([3, 2], gap="small")
 with left:
     img, field = st.columns([2, 13], vertical_alignment="center")
-    mod = module_inputs[-2]
-    with img:
-        st.image(f"Img/{mod.path}.webp")
-    with field:
-        module_values[modnum] = st.number_input(
-            mod.name, min_value=mod.min, max_value=mod.max, step=1, format="%d",
-            value=mod.init, key=mod.name, on_change=change_mod_levels)
+    set_input_img_field(img, field, module_inputs[-2])
+
 with right:
     img, field = st.columns([1, 4], vertical_alignment="center")
-    mod = module_inputs[-1]
-    with img:
-        st.image(f"Img/{mod.path}.webp")
-    with field:
-        module_values[modnum] = st.number_input(
-            mod.name, min_value=mod.min, max_value=mod.max, step=1, format="%d",
-            value=mod.init, key=mod.name, on_change=change_mod_levels)
+    set_input_img_field(img, field, module_inputs[-1])
 
 default("DRS Time", 0)
 default("Simulation", None)
