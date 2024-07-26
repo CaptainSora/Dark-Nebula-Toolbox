@@ -148,14 +148,14 @@ class MiningStrategy(ABC):
 
 class ContinuousMining(MiningStrategy):
     def _base_field_setup(self) -> None:
-        # Log starting values
+        # Write starting values
         self.write_all_data()
         while self._time < self._inputs.genrich_start:
             self.tick()
             self.write_all_data()
         # First genrich
         self.genrich_and_write_data()
-        # Log intermediate values
+        # Write intermediate values
         while self._time < self._inputs.genrich_start + self._inputs.genrich_cd:
             self.tick()
             self.write_all_data()
@@ -164,8 +164,8 @@ class ContinuousMining(MiningStrategy):
         # Set as base values
         self._base_hf = self._hf.copy()
         self._base_time = self._time  # The same tick as 2nd genrich
-        self._base_mining_progress_log = self._mining_progress_data[:]
-        self._base_hydro_field_log = self._hydro_field_data[:]
+        self._base_mining_progress_data = self._mining_progress_data[:]
+        self._base_hydro_field_data = self._hydro_field_data[:]
     
     def run(self) -> bool:
         self._base_field_setup()
