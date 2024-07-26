@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from game_constants import *
+from constants import *
 
 
 @dataclass(kw_only=True, frozen=True)

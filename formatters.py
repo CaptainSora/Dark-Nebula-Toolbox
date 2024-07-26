@@ -1,4 +1,4 @@
-from game_constants import MINUTE
+from constants import MINUTE
 
 
 def format_duration(time_in_seconds):

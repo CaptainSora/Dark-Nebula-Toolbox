@@ -6,7 +6,7 @@ from typing import Self
 
 from pandas import DataFrame as df
 
-from game_constants import *
+from constants import *
 from userinput import UserInput
 
 
