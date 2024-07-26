@@ -25,5 +25,5 @@ MAX_ROIDS = 14
 
 ### Other
 
-# Units
+# Unit conversions
 MINUTE = 60
