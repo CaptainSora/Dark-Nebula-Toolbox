@@ -42,7 +42,7 @@ class HydroField:
         self._roids = [min(floor(r * enr_mult), H_MAX) for r in self._roids]
         self._collected = [0 for _ in range(MAX_ROIDS)]
 
-    def get_targets(self) -> list[int]:
+    def sort_targets(self) -> list[int]:
         return [
             idx for idx, value in sorted(
                 enumerate(self._roids), key=lambda x: x[1], reverse=True
@@ -143,7 +143,7 @@ class MiningStrategy(ABC):
         return self._mining_delay + self._inputs.tick_len
     
     def get_remote_targets(self) -> list[int]:
-        return self._hf.get_targets()[:self._inputs.remote_max_targets]
+        return self._hf.sort_targets()[:self._inputs.remote_max_targets]
 
 
 class ContinuousMining(MiningStrategy):
