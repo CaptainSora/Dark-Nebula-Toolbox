@@ -6,8 +6,8 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
-from minersim import *
 from formatters import format_duration
+from simulation import *
 from strategies import ContinuousMining
 
 
