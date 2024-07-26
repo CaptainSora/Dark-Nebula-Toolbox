@@ -174,13 +174,13 @@ class MiningStrategy(ABC):
             for record in self._hf.field_state
         ])
 
-    def read_mining_progress_log(self) -> df:
+    def read_mining_progress_data(self) -> df:
         return df.from_records(
             self._mining_progress_data,
             columns=["Time", "Boosts", "Tank", "Total Hydro"]
         )
     
-    def read_hydro_field_log(self) -> df:
+    def read_hydro_field_data(self) -> df:
         return df.from_records(
             self._hydro_field_data,
             columns=["Time", "Roid", "Remaining", "Collected"]
@@ -268,14 +268,16 @@ class Simulation:
     def valid(self) -> None:
         return self._valid
     
-    @property
-    def strategy(self) -> MiningStrategy:
-        return self._strategy
-    
     def set_strategy(self, strat: MiningStrategy) -> Self:
         if strat == "Continuous Mining":
             self._strategy = ContinuousMining(self._inputs)
         return self
+    
+    def read_mining_progress_data(self) -> df:
+        return self._strategy.read_mining_progress_data()
+    
+    def read_hydro_field_data(self) -> df:
+        return self._strategy.read_hydro_field_data()
     
     def run(self) -> Self:
         try:

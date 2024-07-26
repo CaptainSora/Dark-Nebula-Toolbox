@@ -160,8 +160,8 @@ sim: Simulation = st.session_state["Simulation"]
 inputs: UserInput = st.session_state["Inputs"]
 
 if sim is not None and inputs is not None and sim.valid:
-    log = sim.strategy.read_mining_progress_log()
-    field = sim.strategy.read_hydro_field_log()
+    log = sim.read_mining_progress_data()
+    field = sim.read_hydro_field_data()
 
     with st.expander("Initial conditions"):
         st.markdown(f"""
