@@ -26,6 +26,9 @@ class Simulation:
     def read_hydro_field_data(self) -> df:
         return self._strategy.read_hydro_field_data()
     
+    def get_mining_delay(self) -> int:
+        return self._strategy.get_mining_delay()
+    
     def run(self) -> Self:
         try:
             self._valid = self._strategy.run()

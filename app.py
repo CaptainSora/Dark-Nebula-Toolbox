@@ -168,7 +168,7 @@ if sim is not None and inputs is not None and sim.valid:
         """)
 
     st.info(
-        f"Delay mining until {format_duration(sim.strategy.get_mining_delay())}"
+        f"Delay mining until {format_duration(sim.get_mining_delay())}"
         f" after 2nd genrich",
         icon="📝"
     )
