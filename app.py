@@ -23,7 +23,9 @@ st.set_page_config(
     }
 )
 st.title("DRS Mining Simulator")
-st.caption(f"Version {VERSION} - Last deployed {dt.today().strftime('%b %d, %Y')}")
+st.caption(
+    f"Version {VERSION} - Last deployed {dt.today().strftime('%b %d, %Y')}"
+)
 
 
 def default(label, initvalue):
@@ -56,12 +58,16 @@ module_values = [None for _ in module_inputs]
 modnum = 0
 
 
-def set_input_img_field(img: st.container, field: st.container, mod: Module) -> None:
+def set_input_img_field(img: st.container,
+                        field: st.container,
+                        mod: Module) -> None:
     # Field must be defined before image for dynamic image switching
     with field:
         module_values[modnum] = st.number_input(
-            mod.name, min_value=mod.min, max_value=mod.max, step=1, format="%d",
-            value=mod.init, key=mod.name, on_change=change_mod_levels)
+            mod.name, min_value=mod.min, max_value=mod.max, step=1,
+            format="%d", value=mod.init, key=mod.name,
+            on_change=change_mod_levels,
+        )
     with img:
         if mod.name == "Miner Level":
             st.image(miner_img_paths[st.session_state["Miner Level"]])
@@ -118,7 +124,10 @@ def make_linechart(mining_progress, time):
         .mark_line()
         .encode(
             alt.X("Time")
-                .scale(domain=(0, mining_progress["Time"].values[-1]), nice=False)
+                .scale(
+                    domain=(0, mining_progress["Time"].values[-1]),
+                    nice=False,
+                )
                 .axis(title="DRS Time (seconds)"),
             alt.Y("Total Hydro")
                 .scale(domain=(0, 21000), nice=False)
@@ -126,8 +135,16 @@ def make_linechart(mining_progress, time):
         )
     )
 
-    max_hydro = alt.Chart(pd.DataFrame({"y": [21000]})).mark_rule(color="red").encode(alt.Y("y"))
-    cur_time = alt.Chart(pd.DataFrame({"x": [time]})).mark_rule(color="orange").encode(alt.X("x"))
+    max_hydro = (
+        alt.Chart(pd.DataFrame({"y": [21000]}))
+        .mark_rule(color="red")
+        .encode(alt.Y("y"))
+    )
+    cur_time = (
+        alt.Chart(pd.DataFrame({"x": [time]}))
+        .mark_rule(color="orange")
+        .encode(alt.X("x"))
+    )
 
     return line + max_hydro + cur_time
 
@@ -140,7 +157,10 @@ def make_barchart(hydro_field, time):
                 .axis(labels=False, title="Asteroids in Sector"),
             alt.Y("Hydro")
                 .scale(domain=(0, 1500), nice=False)
-                .axis(title="Hydrogen per Asteroid", values=[0, 300, 600, 900, 1200, 1500]),
+                .axis(
+                    title="Hydrogen per Asteroid",
+                    values=[0, 300, 600, 900, 1200, 1500],
+                ),
             color="Status"
         )
     )
@@ -155,7 +175,10 @@ def make_barchart(hydro_field, time):
 
 st.button("Simulate!", on_click=get_simulation)
 
-st.warning("Warning: Crunch is currently unsupported by the mining simulation", icon="⚠️")
+st.warning(
+    "Warning: Crunch is currently unsupported by the mining simulation",
+    icon="⚠️",
+)
 
 sim: Simulation = st.session_state["Simulation"]
 inputs: UserInput = st.session_state["Inputs"]
@@ -200,8 +223,14 @@ if sim is not None and inputs is not None and sim.valid:
                 step=10, format="%d", key="slider"
             )
 
-        st.altair_chart(make_linechart(mining_progress, time=st.session_state["DRS Time"]), use_container_width=True)
-        st.altair_chart(make_barchart(hydro_field, time=st.session_state["DRS Time"]), use_container_width=True)
+        st.altair_chart(
+            make_linechart(mining_progress, time=st.session_state["DRS Time"]),
+            use_container_width=True,
+        )
+        st.altair_chart(
+            make_barchart(hydro_field, time=st.session_state["DRS Time"]),
+            use_container_width=True,
+        )
     
     with tab2:
         col1, col2, col3 = st.columns([1, 1, 6])
@@ -210,15 +239,33 @@ if sim is not None and inputs is not None and sim.valid:
         with col2:
             play_slow = st.button("Play (Slow)")
         with col3:
-            pbar = st.progress(0, text = f"DRS Time: {format_duration(time_min)}")
-        line = st.altair_chart(make_linechart(mining_progress, time_min), use_container_width=True)
-        bar = st.altair_chart(make_barchart(hydro_field, time_min), use_container_width=True)
+            pbar = st.progress(
+                0,
+                text=f"DRS Time: {format_duration(time_min)}",
+            )
+        line = st.altair_chart(
+            make_linechart(mining_progress, time_min),
+            use_container_width=True,
+        )
+        bar = st.altair_chart(
+            make_barchart(hydro_field, time_min),
+            use_container_width=True,
+        )
     
         if play_fast or play_slow:
             for time in range(time_min, time_max + 10, 10):
-                pbar.progress(time / time_max, text = f"DRS Time: {format_duration(time)}")
-                line.altair_chart(make_linechart(mining_progress, time), use_container_width=True)
-                bar.altair_chart(make_barchart(hydro_field, time), use_container_width=True)
+                pbar.progress(
+                    time / time_max,
+                    text = f"DRS Time: {format_duration(time)}"
+                )
+                line.altair_chart(
+                    make_linechart(mining_progress, time),
+                    use_container_width=True,
+                )
+                bar.altair_chart(
+                    make_barchart(hydro_field, time),
+                    use_container_width=True,
+                )
                 sleep(0.05 if play_fast else 0.2)
             # pbar.progress(0, text = f"DRS Time: {incr_to_dur(time)}")
 elif sim is not None and inputs is not None:
