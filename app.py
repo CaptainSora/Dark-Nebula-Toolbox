@@ -112,14 +112,18 @@ def get_simulation() -> None:
         .run()
     )
 
-def make_linechart(log, time):
-    line = alt.Chart(log[["Time", "Total Hydro"]]).mark_line().encode(
-        alt.X("Time")
-            .scale(domain=(0, log["Time"].values[-1]), nice=False)
-            .axis(title="DRS Time (seconds)"),
-        alt.Y("Total Hydro")
-            .scale(domain=(0, 21000), nice=False)
-            .axis(title="Total Hydrogen in Sector")
+def make_linechart(mining_progress, time):
+    line = (
+        alt.Chart(mining_progress[["Time", "Total Hydro"]])
+        .mark_line()
+        .encode(
+            alt.X("Time")
+                .scale(domain=(0, log["Time"].values[-1]), nice=False)
+                .axis(title="DRS Time (seconds)"),
+            alt.Y("Total Hydro")
+                .scale(domain=(0, 21000), nice=False)
+                .axis(title="Total Hydrogen in Sector")
+        )
     )
 
     max_hydro = alt.Chart(pd.DataFrame({"y": [21000]})).mark_rule(color="red").encode(alt.Y("y"))
@@ -127,14 +131,18 @@ def make_linechart(log, time):
 
     return line + max_hydro + cur_time
 
-def make_barchart(field, time):
-    bar = alt.Chart(field[field["Time"] == time]).mark_bar().encode(
-        alt.X("Roid")
-            .axis(labels=False, title="Asteroids in Sector"),
-        alt.Y("Hydro")
-            .scale(domain=(0, 1500), nice=False)
-            .axis(title="Hydrogen per Asteroid", values=[0, 300, 600, 900, 1200, 1500]),
-        color="Status"
+def make_barchart(hydro_field, time):
+    bar = (
+        alt.Chart(hydro_field[hydro_field["Time"] == time])
+        .mark_bar()
+        .encode(
+            alt.X("Roid")
+                .axis(labels=False, title="Asteroids in Sector"),
+            alt.Y("Hydro")
+                .scale(domain=(0, 1500), nice=False)
+                .axis(title="Hydrogen per Asteroid", values=[0, 300, 600, 900, 1200, 1500]),
+            color="Status"
+        )
     )
 
     rule = (
