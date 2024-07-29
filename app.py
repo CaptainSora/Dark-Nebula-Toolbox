@@ -118,7 +118,7 @@ def make_linechart(mining_progress, time):
         .mark_line()
         .encode(
             alt.X("Time")
-                .scale(domain=(0, log["Time"].values[-1]), nice=False)
+                .scale(domain=(0, mining_progress["Time"].values[-1]), nice=False)
                 .axis(title="DRS Time (seconds)"),
             alt.Y("Total Hydro")
                 .scale(domain=(0, 21000), nice=False)
@@ -161,8 +161,8 @@ sim: Simulation = st.session_state["Simulation"]
 inputs: UserInput = st.session_state["Inputs"]
 
 if sim is not None and inputs is not None and sim.valid:
-    log = sim.read_mining_progress_data()
-    field = sim.read_hydro_field_data()
+    mining_progress = sim.read_mining_progress_data()
+    hydro_field = sim.read_hydro_field_data()
 
     with st.expander("Initial conditions"):
         st.markdown(f"""
@@ -182,13 +182,13 @@ if sim is not None and inputs is not None and sim.valid:
     )
 
     st.info(
-        f"{log['Boosts'].values[-1]} artifact boosts mined at "
-        f"{format_duration(log['Time'].values[-1])} DRS time",
+        f"{mining_progress['Boosts'].values[-1]} artifact boosts mined at "
+        f"{format_duration(mining_progress['Time'].values[-1])} DRS time",
         icon="📝"
     )
 
     time_min = 0
-    time_max = log["Time"].values[-1]
+    time_max = mining_progress["Time"].values[-1]
 
     tab1, tab2 = st.tabs(["Interactive Graphs", "Animated Graphs"])
 
@@ -200,8 +200,8 @@ if sim is not None and inputs is not None and sim.valid:
                 step=10, format="%d", key="slider"
             )
 
-        st.altair_chart(make_linechart(log, time=st.session_state["DRS Time"]), use_container_width=True)
-        st.altair_chart(make_barchart(field, time=st.session_state["DRS Time"]), use_container_width=True)
+        st.altair_chart(make_linechart(mining_progress, time=st.session_state["DRS Time"]), use_container_width=True)
+        st.altair_chart(make_barchart(hydro_field, time=st.session_state["DRS Time"]), use_container_width=True)
     
     with tab2:
         col1, col2, col3 = st.columns([1, 1, 6])
@@ -211,14 +211,14 @@ if sim is not None and inputs is not None and sim.valid:
             play_slow = st.button("Play (Slow)")
         with col3:
             pbar = st.progress(0, text = f"DRS Time: {format_duration(time_min)}")
-        line = st.altair_chart(make_linechart(log, time_min), use_container_width=True)
-        bar = st.altair_chart(make_barchart(field, time_min), use_container_width=True)
+        line = st.altair_chart(make_linechart(mining_progress, time_min), use_container_width=True)
+        bar = st.altair_chart(make_barchart(hydro_field, time_min), use_container_width=True)
     
         if play_fast or play_slow:
             for time in range(time_min, time_max + 10, 10):
                 pbar.progress(time / time_max, text = f"DRS Time: {format_duration(time)}")
-                line.altair_chart(make_linechart(log, time), use_container_width=True)
-                bar.altair_chart(make_barchart(field, time), use_container_width=True)
+                line.altair_chart(make_linechart(mining_progress, time), use_container_width=True)
+                bar.altair_chart(make_barchart(hydro_field, time), use_container_width=True)
                 sleep(0.05 if play_fast else 0.2)
             # pbar.progress(0, text = f"DRS Time: {incr_to_dur(time)}")
 elif sim is not None and inputs is not None:
