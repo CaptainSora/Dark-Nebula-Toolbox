@@ -37,7 +37,7 @@ Module = namedtuple("Module", ["name", "path", "min", "max", "init"])
 miner_img_paths = [f"Img/MS{x}.webp" for x in range(0, 8)]
 
 module_inputs = [
-    Module("Mining Boost", "MiningBoost", 0, 15, 11),
+    Module("Mining Boost", "MiningBoost", 0, 15, 12),
     Module("Remote Mining", "RemoteMining", 1, 15, 9),
     Module("Crunch", "Crunch", 0, 15, 0),
     Module("Genesis", "Genesis", 0, 15, 13),
