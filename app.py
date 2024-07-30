@@ -118,17 +118,21 @@ def get_simulation() -> None:
         .run()
     )
 
-def make_linechart(mining_progress, time):
+def make_linechart(mining_progress, duration):
+    tick_values = [
+        dur for dur in mining_progress["Duration"]
+        if dur[-3:] == "00s"
+    ]
     line = (
-        alt.Chart(mining_progress[["Time", "Total Hydro"]])
+        alt.Chart(mining_progress[["Duration", "Total Hydro"]])
         .mark_line()
         .encode(
-            alt.X("Time")
-                .scale(
-                    domain=(0, mining_progress["Time"].values[-1]),
-                    nice=False,
-                )
-                .axis(title="DRS Time (seconds)"),
+            alt.X("Duration:O")
+                .axis(
+                    title="DRS Time (seconds)",
+                    grid=True,
+                    values=tick_values,
+                ),
             alt.Y("Total Hydro")
                 .scale(domain=(0, 21000), nice=False)
                 .axis(title="Total Hydrogen in Sector")
@@ -140,17 +144,17 @@ def make_linechart(mining_progress, time):
         .mark_rule(color="red")
         .encode(alt.Y("y"))
     )
-    cur_time = (
-        alt.Chart(pd.DataFrame({"x": [time]}))
+    cur_dur = (
+        alt.Chart(pd.DataFrame({"x": [duration]}))
         .mark_rule(color="orange")
         .encode(alt.X("x"))
     )
 
-    return line + max_hydro + cur_time
+    return line + max_hydro + cur_dur
 
-def make_barchart(hydro_field, time):
+def make_barchart(hydro_field, duration):
     bar = (
-        alt.Chart(hydro_field[hydro_field["Time"] == time])
+        alt.Chart(hydro_field[hydro_field["Duration"] == duration])
         .mark_bar()
         .encode(
             alt.X("Roid")
@@ -206,7 +210,7 @@ if sim is not None and inputs is not None and sim.valid:
 
     st.info(
         f"{mining_progress['Boosts'].values[-1]} artifact boosts mined at "
-        f"{format_duration(mining_progress['Time'].values[-1])} DRS time",
+        f"{mining_progress['Duration'].values[-1]} DRS time",
         icon="📝"
     )
 
@@ -218,17 +222,18 @@ if sim is not None and inputs is not None and sim.valid:
     with tab1:
         padding, slider_col = st.columns([1, 9])
         with slider_col:
-            st.session_state["DRS Time"] = st.slider(
-                "DRS Time (seconds)", min_value=time_min, max_value=time_max,
-                step=10, format="%d", key="slider"
+            st.session_state["DRS Time"] = st.select_slider(
+                "DRS Time (seconds)",
+                options=list(dict.fromkeys(mining_progress["Duration"])),
+                key="slider"
             )
 
         st.altair_chart(
-            make_linechart(mining_progress, time=st.session_state["DRS Time"]),
+            make_linechart(mining_progress, st.session_state["DRS Time"]),
             use_container_width=True,
         )
         st.altair_chart(
-            make_barchart(hydro_field, time=st.session_state["DRS Time"]),
+            make_barchart(hydro_field, st.session_state["DRS Time"]),
             use_container_width=True,
         )
     
@@ -244,11 +249,11 @@ if sim is not None and inputs is not None and sim.valid:
                 text=f"DRS Time: {format_duration(time_min)}",
             )
         line = st.altair_chart(
-            make_linechart(mining_progress, time_min),
+            make_linechart(mining_progress, format_duration(time_min)),
             use_container_width=True,
         )
         bar = st.altair_chart(
-            make_barchart(hydro_field, time_min),
+            make_barchart(hydro_field, format_duration(time_min)),
             use_container_width=True,
         )
     
@@ -259,15 +264,14 @@ if sim is not None and inputs is not None and sim.valid:
                     text = f"DRS Time: {format_duration(time)}"
                 )
                 line.altair_chart(
-                    make_linechart(mining_progress, time),
+                    make_linechart(mining_progress, format_duration(time)),
                     use_container_width=True,
                 )
                 bar.altair_chart(
-                    make_barchart(hydro_field, time),
+                    make_barchart(hydro_field, format_duration(time)),
                     use_container_width=True,
                 )
                 sleep(0.05 if play_fast else 0.2)
-            # pbar.progress(0, text = f"DRS Time: {incr_to_dur(time)}")
 elif sim is not None and inputs is not None:
     st.error(
         "Simulation failed to find a solution, please verify your inputs!"

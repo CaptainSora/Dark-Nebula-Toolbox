@@ -7,6 +7,7 @@ from typing import Self
 from pandas import DataFrame as df
 
 from constants import *
+from formatters import format_duration
 from userinput import UserInput
 
 
@@ -112,6 +113,7 @@ class MiningStrategy(ABC):
     def write_mining_progress_data(self) -> None:
         self._mining_progress_data.append([
             self._time,
+            format_duration(self._time),
             self._boosts,
             self._tank,
             self._hf.total_hydro
@@ -119,22 +121,22 @@ class MiningStrategy(ABC):
     
     def write_hydro_field_data(self) -> None:
         self._hydro_field_data.extend([
-            [self._time, *record]
+            [self._time, format_duration(self._time), *record]
             for record in self._hf.field_state
         ])
 
     def read_mining_progress_data(self) -> df:
         return df.from_records(
             self._mining_progress_data,
-            columns=["Time", "Boosts", "Tank", "Total Hydro"]
+            columns=["Time", "Duration", "Boosts", "Tank", "Total Hydro"]
         )
     
     def read_hydro_field_data(self) -> df:
         return df.from_records(
             self._hydro_field_data,
-            columns=["Time", "Roid", "Remaining", "Collected"]
+            columns=["Time", "Duration", "Roid", "Remaining", "Collected"]
         ).melt(
-            ["Time", "Roid"],
+            ["Time", "Duration", "Roid"],
             var_name="Status",
             value_name="Hydro"
         )
