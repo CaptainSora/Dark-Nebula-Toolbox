@@ -3,11 +3,19 @@
 All notable changes to this project will be documented in this file. See the About section at the end for details.
 
 
-## [0.4.1] - Unreleased
+## [0.4.1] - 2024-07-30
+
+### User Interface
+- Updated text output to clearly display important information
+- Added new user input to specify when the first genrich occurs
+- Changed all times to display as a duration
+
+### Visualizations
+- Updated line chart x-axis to display time as a duration
+- Added data from before the second genrich
 
 ### Simulation
-- Added new user input to specify when the first genrich occurs
-- Changed simulation to use the start of the DRS as time zero
+- Updated simulation to use the start of the DRS as time zero
 
 
 ## [0.4.0] - 2024-07-16
