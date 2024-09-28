@@ -11,7 +11,7 @@ from simulation import *
 from strategies import ContinuousMining
 
 
-VERSION = "0.4.1 (Beta)"
+VERSION = "0.4.2 (Beta)"
 
 
 st.set_page_config(
