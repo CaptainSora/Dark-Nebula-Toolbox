@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file. See the About section at the end for details.
 
 
+## [0.4.2] - 2024-09-28
+
+### Game Data
+- Updated Art Boost 14 threshold to match the game data change [listed here](http://blog.hadesstar.com/2024/09/server-update-september-17.html)
+
+### User Interface
+- Improved "Simulate" button visuals
+
+
 ## [0.4.1] - 2024-07-30
 
 ### User Interface

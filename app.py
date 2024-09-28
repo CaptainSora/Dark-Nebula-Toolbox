@@ -11,7 +11,7 @@ from simulation import *
 from strategies import ContinuousMining
 
 
-VERSION = "0.4.1 (Beta)"
+VERSION = "0.4.2 (Beta)"
 
 
 st.set_page_config(
@@ -177,7 +177,16 @@ def make_barchart(hydro_field, duration):
 
     return bar + rule
 
-st.button("Simulate!", on_click=get_simulation)
+left_padding, center, right_padding = st.columns([3, 2, 3])
+with center:
+    st.write("")
+    st.button(
+        "Simulate!",
+        on_click=get_simulation,
+        type="primary",
+        use_container_width=True,
+    )
+    st.write("")
 
 st.warning(
     "Warning: Crunch is currently unsupported by the mining simulation",
