@@ -92,7 +92,9 @@ class MiningStrategy(ABC):
         self._last_genrich = self._base_time
         self._mining_progress_data = self._base_mining_progress_data[:]
         self._hydro_field_data = self._base_hydro_field_data[:]
+        # All miners combined
         self._tank = 0
+        self._tank_max = self._inputs.tanksize * self._inputs.minerqty
         self._boosts = 0
     
     @abstractmethod
@@ -179,8 +181,12 @@ class ContinuousMining(MiningStrategy):
                 self.tick()
                 # Mine
                 if self._time >= delay_reference + self._mining_delay:
-                    self._tank += self._inputs.total_mining_speed
-                    self._hf.collect(self._inputs.total_mining_speed, targets)
+                    total_mined = min(
+                        self._inputs.total_mining_speed,
+                        self._tank_max - self._tank
+                    )
+                    self._tank += total_mined
+                    self._hf.collect(total_mined, targets)
                 self.write_all_data()
                 # Boost and Move
                 if self._tank >= self._inputs.ab * self._inputs.minerqty:

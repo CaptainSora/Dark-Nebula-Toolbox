@@ -31,6 +31,10 @@ class UserInput:
         return ARTIFACT_BOOST[self.ablv]
     
     @property
+    def tanksize(self) -> int:
+        return MINER_TANK[self.minerlv]
+    
+    @property
     def total_mining_speed(self) -> float:
         # Total mining speed in hydro/tick
         return (
