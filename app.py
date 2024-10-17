@@ -92,10 +92,14 @@ with right:
     img, field = st.columns([1, 4], vertical_alignment="center")
     set_input_img_field(img, field, module_inputs[-1])
 
+### Advanced Inputs
+with st.expander("Advanced Settings"):
+    pass
+
+### Setup
 default("DRS Time", 0)
 default("Simulation", None)
 default("Inputs", None)
-
 
 def get_simulation() -> None:
     if any([st.session_state[mod.name] is None for mod in module_inputs]):
@@ -110,7 +114,7 @@ def get_simulation() -> None:
         minerlv=st.session_state["Miner Level"],
         minerqty=st.session_state["Miner Quantity"],
         boostqty=st.session_state["Target Number of Artifact Boosts"],
-        _genrich_start_min=st.session_state["First Genrich (Minutes)"]
+        _genrich_start_min=st.session_state["First Genrich (Minutes)"],
     )
     st.session_state["Simulation"] = (
         Simulation(st.session_state["Inputs"])
@@ -177,6 +181,7 @@ def make_barchart(hydro_field, duration):
 
     return bar + rule
 
+### Button
 left_padding, center, right_padding = st.columns([3, 2, 3])
 with center:
     st.write("")
@@ -196,6 +201,7 @@ st.warning(
 sim: Simulation = st.session_state["Simulation"]
 inputs: UserInput = st.session_state["Inputs"]
 
+### Output
 if sim is not None and inputs is not None and sim.valid:
     mining_progress = sim.read_mining_progress_data()
     hydro_field = sim.read_hydro_field_data()
