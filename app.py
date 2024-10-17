@@ -131,6 +131,9 @@ with st.expander("Advanced Settings"):
         value=st.session_state["Simulation Tick Length"],
         disabled=not remote_mining_bug_active(),
     )
+    if not remote_mining_bug_active():
+        st.session_state["Remote Mining Bug Delay"] = 0
+
 
 ### Simulation Setup
 default("DRS Time", 0)
@@ -153,6 +156,7 @@ def get_simulation() -> None:
         _genrich_start_min=st.session_state["First Genrich (Minutes)"],
         _genrich_lag=st.session_state["Enrich Cooldown Delay"],
         tick_len=st.session_state["Simulation Tick Length"],
+        rmbug_lag=st.session_state["Remote Mining Bug Delay"],
     )
     st.session_state["Simulation"] = (
         Simulation(st.session_state["Inputs"])
@@ -219,6 +223,7 @@ def make_barchart(hydro_field, duration):
 
     return bar + rule
 
+
 ### Button
 left_padding, center, right_padding = st.columns([3, 2, 3])
 with center:
@@ -238,6 +243,7 @@ st.warning(
 
 sim: Simulation = st.session_state["Simulation"]
 inputs: UserInput = st.session_state["Inputs"]
+
 
 ### Output
 if sim is not None and inputs is not None and sim.valid:
