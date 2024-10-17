@@ -6,6 +6,7 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
+from constants import ARTIFACT_BOOST, MINER_TANK
 from formatters import format_duration
 from simulation import *
 from strategies import ContinuousMining
@@ -77,6 +78,13 @@ def set_input_img_field(img: st.container,
             st.image(f"Img/{mod.path}.webp")
 
 
+def remote_mining_bug_active() -> bool:
+    return (
+        MINER_TANK[st.session_state["Miner Level"]] 
+        == ARTIFACT_BOOST[st.session_state["Artifact Boost"]]
+    )
+
+
 ### Inputs
 for _ in range(3):
     for col in st.columns(3, gap="medium"):
@@ -94,7 +102,9 @@ with right:
     img, field = st.columns([1, 4], vertical_alignment="center")
     set_input_img_field(img, field, module_inputs[-1])
 
+
 ### Advanced Inputs
+default("Remote Mining Bug Delay", 0)
 with st.expander("Advanced Settings"):
     st.session_state["Simulation Tick Length"] = st.select_slider(
         "Simulation Tick Length (seconds)",
@@ -103,8 +113,23 @@ with st.expander("Advanced Settings"):
     )
     st.session_state["Enrich Cooldown Delay"] = st.select_slider(
         "Extra delay between enrich cycles (seconds)",
-        options=list(range(0, 41, st.session_state["Simulation Tick Length"])),
-        value=0
+        options=[
+            i * st.session_state["Simulation Tick Length"]
+            for i in range(5)
+        ],
+        value=st.session_state["Simulation Tick Length"],
+    )
+    st.session_state["Remote Mining Bug Delay"] = st.select_slider(
+        (
+            "Extra mining delay after artifact boost due to "
+            "Remote Mining bug (seconds)"
+        ),
+        options=[
+            i * st.session_state["Simulation Tick Length"]
+            for i in range(5)
+        ],
+        value=st.session_state["Simulation Tick Length"],
+        disabled=not remote_mining_bug_active(),
     )
 
 ### Simulation Setup

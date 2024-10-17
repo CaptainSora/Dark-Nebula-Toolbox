@@ -17,6 +17,7 @@ class UserInput:
     _genrich_start_min: int
     _genrich_lag: int = 0
     tick_len: int = 10
+    rmbug_lag: int = 0
 
     @property
     def gen(self) -> int:
