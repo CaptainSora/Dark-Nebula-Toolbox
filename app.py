@@ -99,6 +99,11 @@ with st.expander("Advanced Settings"):
         options=[5, 10, 20],
         value=10
     )
+    st.session_state["Enrich Cooldown Delay"] = st.select_slider(
+        "Extra delay between enrich cycles (seconds)",
+        options=list(range(0, 41, st.session_state["Simulation Tick Length"])),
+        value=0
+    )
 
 ### Setup
 default("DRS Time", 0)
@@ -119,6 +124,7 @@ def get_simulation() -> None:
         minerqty=st.session_state["Miner Quantity"],
         boostqty=st.session_state["Target Number of Artifact Boosts"],
         _genrich_start_min=st.session_state["First Genrich (Minutes)"],
+        _genrich_lag=st.session_state["Enrich Cooldown Delay"],
         tick_len=st.session_state["Simulation Tick Length"],
     )
     st.session_state["Simulation"] = (
