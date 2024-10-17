@@ -14,6 +14,7 @@ from strategies import ContinuousMining
 VERSION = "0.4.2 (Beta)"
 
 
+### Page Setup
 st.set_page_config(
     page_title="DRS Mining Simulator",
     menu_items={
@@ -28,6 +29,7 @@ st.caption(
 )
 
 
+### Input Setup
 def default(label, initvalue):
     if label not in st.session_state:
         st.session_state[label] = initvalue
@@ -105,7 +107,7 @@ with st.expander("Advanced Settings"):
         value=0
     )
 
-### Setup
+### Simulation Setup
 default("DRS Time", 0)
 default("Simulation", None)
 default("Inputs", None)
