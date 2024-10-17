@@ -7,6 +7,7 @@ from typing import Self
 from pandas import DataFrame as df
 
 from constants import *
+from enums import MiningStatus as MS
 from formatters import format_duration
 from userinput import UserInput
 
@@ -84,6 +85,7 @@ class MiningStrategy(ABC):
         self._mining_delay = 0
         self._max_mining_delay = 2 * self._inputs.genrich_cd
         self._max_time = 40 * MINUTE
+        self._status = MS.CLEARING
         self._reset()
     
     def _reset(self) -> None:
@@ -92,6 +94,7 @@ class MiningStrategy(ABC):
         self._last_genrich = self._base_time
         self._mining_progress_data = self._base_mining_progress_data[:]
         self._hydro_field_data = self._base_hydro_field_data[:]
+        self._status = MS.GENRICH
         # All miners combined
         self._tank = 0
         self._tank_max = self._inputs.tanksize * self._inputs.minerqty
@@ -118,7 +121,8 @@ class MiningStrategy(ABC):
             format_duration(self._time),
             self._boosts,
             self._tank,
-            self._hf.total_hydro
+            self._hf.total_hydro,
+            self._status,
         ])
     
     def write_hydro_field_data(self) -> None:
@@ -130,7 +134,10 @@ class MiningStrategy(ABC):
     def read_mining_progress_data(self) -> df:
         return df.from_records(
             self._mining_progress_data,
-            columns=["Time", "Duration", "Boosts", "Tank", "Total Hydro"]
+            columns=[
+                "Time", "Duration", "Boosts", "Tank", "Total Hydro",
+                "Mining Status",
+            ]
         )
     
     def read_hydro_field_data(self) -> df:
@@ -159,6 +166,7 @@ class ContinuousMining(MiningStrategy):
             self.write_all_data()
         # First genrich
         self.genrich_and_write_data()
+        self._status = MS.GENRICH
         # Write intermediate values
         while self._time < self._inputs.genrich_start + self._inputs.genrich_cd:
             self.tick()
@@ -181,6 +189,7 @@ class ContinuousMining(MiningStrategy):
                 self.tick()
                 # Mine
                 if self._time >= delay_reference + self._mining_delay:
+                    self._status = MS.MINING
                     total_mined = min(
                         self._inputs.total_mining_speed,
                         self._tank_max - self._tank
