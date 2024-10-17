@@ -94,7 +94,11 @@ with right:
 
 ### Advanced Inputs
 with st.expander("Advanced Settings"):
-    pass
+    st.session_state["Simulation Tick Length"] = st.select_slider(
+        "Simulation Tick Length (seconds)",
+        options=[5, 10, 20],
+        value=10
+    )
 
 ### Setup
 default("DRS Time", 0)
@@ -115,6 +119,7 @@ def get_simulation() -> None:
         minerqty=st.session_state["Miner Quantity"],
         boostqty=st.session_state["Target Number of Artifact Boosts"],
         _genrich_start_min=st.session_state["First Genrich (Minutes)"],
+        tick_len=st.session_state["Simulation Tick Length"],
     )
     st.session_state["Simulation"] = (
         Simulation(st.session_state["Inputs"])
