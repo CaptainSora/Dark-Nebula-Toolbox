@@ -315,9 +315,10 @@ if sim is not None and inputs is not None and sim.valid:
             make_barchart(hydro_field, format_duration(time_min)),
             use_container_width=True,
         )
-    
+
+        step = st.session_state["Simulation Tick Length"]
         if play_fast or play_slow:
-            for time in range(time_min, time_max + 10, 10):
+            for time in range(time_min, time_max + step, step):
                 pbar.progress(
                     time / time_max,
                     text = f"DRS Time: {format_duration(time)}"
