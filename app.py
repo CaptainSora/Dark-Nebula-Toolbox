@@ -266,7 +266,7 @@ if sim is not None and inputs is not None and sim.valid:
     st.info(
         f"Delay mining until {format_duration(sim.get_mining_delay())}"
         f" after 2nd genrich",
-        icon="📝"
+        icon=":material/schedule:"
     )
 
     total_boost_qty = mining_progress["Boosts"].values[-1]
@@ -281,12 +281,12 @@ if sim is not None and inputs is not None and sim.valid:
     st.info(
         f"{total_boost_qty} artifact boosts mined at "
         f"{last_boost_time} DRS time",
-        icon="📝"
+        icon=":material/shopping_cart_checkout:"
     )
 
     st.info(
         f"Miners reach jump gate at {drs_exit_time} DRS time",
-        icon="📝"
+        icon=":material/logout:"
     )
 
     time_min = 0
