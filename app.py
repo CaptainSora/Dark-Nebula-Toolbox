@@ -269,9 +269,23 @@ if sim is not None and inputs is not None and sim.valid:
         icon="📝"
     )
 
+    total_boost_qty = mining_progress["Boosts"].values[-1]
+    last_boost_time = (
+        mining_progress
+        .loc[mining_progress["Boosts"] == total_boost_qty]
+        ["Duration"]
+        .values[0]
+    )
+    drs_exit_time = mining_progress["Duration"].values[-1]
+
     st.info(
-        f"{mining_progress['Boosts'].values[-1]} artifact boosts mined at "
-        f"{mining_progress['Duration'].values[-1]} DRS time",
+        f"{total_boost_qty} artifact boosts mined at "
+        f"{last_boost_time} DRS time",
+        icon="📝"
+    )
+
+    st.info(
+        f"Miners reach jump gate at {drs_exit_time} DRS time",
         icon="📝"
     )
 
