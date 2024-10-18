@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from checks import remote_mining_bug_active
 from constants import *
 
 
@@ -17,7 +18,7 @@ class UserInput:
     _genrich_start_min: int
     _genrich_lag: int = 0
     tick_len: int = 10
-    rmbug_lag: int = 0
+    _rmbug_lag: int = 0
 
     @property
     def gen(self) -> int:
@@ -57,3 +58,10 @@ class UserInput:
     @property
     def genrich_cd(self) -> int:
         return 5 * MINUTE + self._genrich_lag
+    
+    @property
+    def rm_lag(self) -> int:
+        if remote_mining_bug_active(self.minerlv, self.ablv):
+            return self._rmbug_lag
+        else:
+            return 0

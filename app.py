@@ -6,7 +6,7 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
-from constants import ARTIFACT_BOOST, MINER_TANK
+from checks import remote_mining_bug_active
 from formatters import format_duration
 from simulation import *
 from strategies import ContinuousMining
@@ -78,13 +78,6 @@ def set_input_img_field(img: st.container,
             st.image(f"Img/{mod.path}.webp")
 
 
-def remote_mining_bug_active() -> bool:
-    return (
-        MINER_TANK[st.session_state["Miner Level"]] 
-        == ARTIFACT_BOOST[st.session_state["Artifact Boost"]]
-    )
-
-
 ### Inputs
 for _ in range(3):
     for col in st.columns(3, gap="medium"):
@@ -129,10 +122,11 @@ with st.expander("Advanced Settings"):
             for i in range(5)
         ],
         value=st.session_state["Simulation Tick Length"],
-        disabled=not remote_mining_bug_active(),
+        disabled=not remote_mining_bug_active(
+            st.session_state["Miner Level"],
+            st.session_state["Artifact Boost"]
+        ),
     )
-    if not remote_mining_bug_active():
-        st.session_state["Remote Mining Bug Delay"] = 0
 
 
 ### Simulation Setup
@@ -156,7 +150,7 @@ def get_simulation() -> None:
         _genrich_start_min=st.session_state["First Genrich (Minutes)"],
         _genrich_lag=st.session_state["Enrich Cooldown Delay"],
         tick_len=st.session_state["Simulation Tick Length"],
-        rmbug_lag=st.session_state["Remote Mining Bug Delay"],
+        _rmbug_lag=st.session_state["Remote Mining Bug Delay"],
     )
     st.session_state["Simulation"] = (
         Simulation(st.session_state["Inputs"])

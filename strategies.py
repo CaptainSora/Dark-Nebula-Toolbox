@@ -92,6 +92,7 @@ class MiningStrategy(ABC):
         self._hf = self._base_hf.copy()
         self._time = self._base_time
         self._last_genrich = self._base_time
+        self._last_artboost = 0
         self._mining_progress_data = self._base_mining_progress_data[:]
         self._hydro_field_data = self._base_hydro_field_data[:]
         self._status = MS.GENRICH
@@ -187,20 +188,28 @@ class ContinuousMining(MiningStrategy):
             delay_reference = self._last_genrich
             while self._time < self._max_time:
                 self.tick()
+                # TODO: Abstract away these components into MiningStrategy
+                #       superclass?
                 # Mine
                 if self._time >= delay_reference + self._mining_delay:
-                    self._status = MS.MINING
-                    total_mined = min(
-                        self._inputs.total_mining_speed,
-                        self._tank_max - self._tank
-                    )
-                    self._tank += total_mined
-                    self._hf.collect(total_mined, targets)
+                    if self._time > self._last_artboost + self._inputs.rm_lag:
+                        # Strictly greater since one tick passed after last
+                        #   artboost already
+                        self._status = MS.MINING
+                        total_mined = min(
+                            self._inputs.total_mining_speed,
+                            self._tank_max - self._tank
+                        )
+                        self._tank += total_mined
+                        self._hf.collect(total_mined, targets)
+                    else:
+                        self._status = MS.WAITING
                 self.write_all_data()
                 # Boost and Move
                 if self._tank >= self._inputs.ab * self._inputs.minerqty:
                     self._tank -= self._inputs.ab * self._inputs.minerqty
                     self._boosts += self._inputs.minerqty
+                    self._last_artboost = self._time
                     targets = self.get_remote_targets()
                     self.write_mining_progress_data()
                 # Enrich
