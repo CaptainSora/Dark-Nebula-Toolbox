@@ -156,6 +156,14 @@ class MiningStrategy(ABC):
     
     def get_remote_targets(self) -> list[int]:
         return self._hf.sort_targets()[:self._inputs.remote_max_targets]
+    
+    ### Mining components
+    def exit_miners(self) -> None:
+        completed_mining = self._time
+        self._status = MS.EXITING
+        while self._time < completed_mining + self._inputs.exit_dur:
+            self.tick()
+            self.write_all_data()
 
 
 class ContinuousMining(MiningStrategy):
@@ -221,6 +229,7 @@ class ContinuousMining(MiningStrategy):
                     # Retry
                     break
                 if self._boosts >= self._inputs.boostqty:
+                    self.exit_miners()
                     return True
             else:
                 # Exceeded max simulation time
