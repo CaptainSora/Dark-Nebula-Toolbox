@@ -127,6 +127,13 @@ with st.expander("Advanced Settings"):
             st.session_state["Artifact Boost"]
         ),
     )
+    st.session_state["Exit Duration"] = st.select_slider(
+        "Time required to fly miners out of DRS (seconds)",
+        options=list(range(
+            60, 121, st.session_state["Simulation Tick Length"]
+        )),
+        value=90
+    )
 
 
 ### Simulation Setup
@@ -151,6 +158,7 @@ def get_simulation() -> None:
         _genrich_lag=st.session_state["Enrich Cooldown Delay"],
         tick_len=st.session_state["Simulation Tick Length"],
         _rmbug_lag=st.session_state["Remote Mining Bug Delay"],
+        exit_dur=st.session_state["Exit Duration"],
     )
     st.session_state["Simulation"] = (
         Simulation(st.session_state["Inputs"])
