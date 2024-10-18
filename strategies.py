@@ -218,8 +218,7 @@ class ContinuousMining(MiningStrategy):
                     self._last_genrich = self._time
                 # Checks
                 if self._hf.drained_roid():
-                    # Increase delay and retry
-                    self._mining_delay += self._inputs.tick_len
+                    # Retry
                     break
                 if self._boosts >= self._inputs.boostqty:
                     return True
