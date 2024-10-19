@@ -7,6 +7,7 @@ import pandas as pd
 import streamlit as st
 
 from checks import remote_mining_bug_active
+from enums import MiningStatus as MS
 from formatters import format_duration
 from simulation import *
 from strategies import ContinuousMining
@@ -198,7 +199,19 @@ def make_linechart(mining_progress, duration):
         .encode(alt.X("x"))
     )
 
-    return line + max_hydro + cur_dur
+    mp_unique = mining_progress.drop_duplicates("Duration")
+    
+    rect = (
+        alt.Chart(mp_unique)
+        .mark_rect()
+        .encode(
+            x="Duration:O",
+            opacity=alt.value(0.2),
+            color=alt.Color("Mining Status:N", legend=None),
+        )
+    )
+
+    return line + rect + line + max_hydro + cur_dur
 
 def make_barchart(hydro_field, duration):
     bar = (
@@ -224,6 +237,33 @@ def make_barchart(hydro_field, duration):
     )
 
     return bar + rule
+
+def make_donutchart(mining_progress, duration):
+    counter = dict.fromkeys([str(ms) for ms in MS], 0)
+    for ms in mining_progress.drop_duplicates("Time")["Mining Status"]:
+        counter[ms.value] += st.session_state["Simulation Tick Length"]
+    
+    source = pd.DataFrame({
+        "Action": counter.keys(),
+        "Duration (seconds)": counter.values()
+    })
+
+    donut = (
+        alt.Chart(source)
+        .mark_arc(innerRadius=50)
+        .encode(
+            theta=alt.Theta("Duration (seconds)", stack=True),
+            color="Action:N",
+            opacity=alt.value(0.8)
+        )
+        .properties(
+            title="Miner Time Spent Breakdown"
+        )
+        .configure_title(anchor="middle")
+        .configure_legend(offset=-50, labelLimit=0)
+    )
+
+    return donut
 
 
 ### Button
@@ -309,6 +349,10 @@ if sim is not None and inputs is not None and sim.valid:
         )
         st.altair_chart(
             make_barchart(hydro_field, st.session_state["DRS Time"]),
+            use_container_width=True,
+        )
+        st.altair_chart(
+            make_donutchart(mining_progress, st.session_state["DRS Time"]),
             use_container_width=True,
         )
     
