@@ -95,7 +95,6 @@ class MiningStrategy(ABC):
         self._last_artboost = 0
         self._mining_progress_data = self._base_mining_progress_data[:]
         self._hydro_field_data = self._base_hydro_field_data[:]
-        self._status = MS.GENRICH
         # All miners combined
         self._tank = 0
         self._tank_max = self._inputs.tanksize * self._inputs.minerqty
@@ -192,6 +191,7 @@ class ContinuousMining(MiningStrategy):
         self._base_field_setup()
         while self._mining_delay < self._max_mining_delay:
             self._reset()
+            self._status = MS.GENRICH
             targets = self.get_remote_targets()
             delay_reference = self._last_genrich
             while self._time < self._max_time:
