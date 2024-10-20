@@ -263,14 +263,17 @@ def make_donutchart(mining_progress, duration):
     # Create df
     index = pd.DataFrame(index=[ms.value for ms in MS])
     source = (
-        pd.concat([index, all_actions, elapsed_actions], axis=1)
+        pd.concat(
+            [index, all_actions, elapsed_actions],
+            axis=1,
+            ignore_index=True,
+        )
         .reset_index()
         .rename(columns={
             "index": "Status",
             0: "Total Duration (seconds)",
-            1: "Elapsed Duration (seconds)"
-        })
-        .fillna(value=0)
+            1: "Elapsed Duration (seconds)",
+        }, errors="raise")
     )
 
     innerRadius = 48
@@ -281,6 +284,7 @@ def make_donutchart(mining_progress, duration):
         / source["Total Duration (seconds)"]
         * (outerRadius - innerRadius)
     )
+    source = source.fillna(0)
 
     # Create "base" chart showing total actions
     donut = (
