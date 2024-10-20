@@ -134,7 +134,7 @@ with st.expander("Advanced Settings"):
         options=list(range(
             60, 121, st.session_state["Simulation Tick Length"]
         )),
-        value=90
+        value=80
     )
 
 
