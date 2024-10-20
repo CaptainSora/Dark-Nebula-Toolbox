@@ -446,9 +446,9 @@ if sim is not None and inputs is not None and sim.valid:
             use_container_width=True,
         )
 
-        step = st.session_state["Simulation Tick Length"]
+        tick = st.session_state["Simulation Tick Length"]
         if play_fast or play_slow:
-            for time in range(time_min, time_max + step, step):
+            for time in range(time_min, time_max + tick, tick):
                 pbar.progress(
                     time / time_max,
                     text = f"DRS Time: {format_duration(time)}"
@@ -465,7 +465,7 @@ if sim is not None and inputs is not None and sim.valid:
                     make_donutchart(mining_progress, format_duration(time)),
                     use_container_width=True,
                 )
-                sleep(0.05 if play_fast else 0.2)
+                sleep(0 if play_fast else 0.02 * tick)
 elif sim is not None and inputs is not None:
     st.error(
         "Simulation failed to find a solution, please verify your inputs!"
