@@ -116,7 +116,7 @@ with st.expander("Advanced Settings"):
     )
     st.session_state["Remote Mining Bug Delay"] = st.select_slider(
         (
-            "Extra mining delay after artifact boost due to "
+            "Extra mining delay after Artifact Boost due to "
             "Remote Mining bug (seconds)"
         ),
         options=[
