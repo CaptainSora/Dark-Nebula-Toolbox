@@ -3,6 +3,7 @@ from datetime import datetime as dt
 from time import sleep
 
 import altair as alt
+from numpy import pi
 import pandas as pd
 import streamlit as st
 
@@ -242,15 +243,20 @@ def make_donutchart(mining_progress, duration):
     mp_unique = mining_progress.drop_duplicates("Time")
     time = mp_unique.loc[mp_unique.Duration == duration, "Time"].values[0]
 
+    # Don't count the action at time 0
+    mp_unique = mp_unique[mp_unique["Time"] > 0]
+
+    # Count total and elapsed actions
     all_actions = (
         mp_unique
         .value_counts("Mining Status")
-    )
+    ) * st.session_state["Simulation Tick Length"]
     elapsed_actions = (
         mp_unique[mp_unique["Time"] <= int(time)]
         .value_counts("Mining Status")
-    )
+    ) * st.session_state["Simulation Tick Length"]
 
+    # Create df
     index = pd.DataFrame(index=[ms.value for ms in MS])
     source = (
         pd.concat([index, all_actions, elapsed_actions], axis=1)
@@ -263,22 +269,63 @@ def make_donutchart(mining_progress, duration):
         .fillna(value=0)
     )
 
+    innerRadius = 48
+    outerRadius = 144
+
+    source["Added Radius"] = (
+        source["Elapsed Duration (seconds)"]
+        / source["Total Duration (seconds)"]
+        * (outerRadius - innerRadius)
+    )
+
+    # Create "base" chart showing total actions
     donut = (
         alt.Chart(source)
-        .mark_arc(innerRadius=50)
+        .mark_arc(innerRadius=innerRadius, outerRadius=outerRadius)
         .encode(
             theta=alt.Theta("Total Duration (seconds)", stack=True),
             color="Status:N",
-            opacity=alt.value(0.8),
+            opacity=alt.value(0.3),
         )
         .properties(
             title="Miner Time Spent Breakdown"
         )
-        .configure_title(anchor="middle")
-        .configure_legend(offset=-50, labelLimit=0)
     )
 
-    return donut
+    # Problem: cannot control radii of each slice individually
+    # Solution: create n additional donut charts on top of the "base" chart,
+    #           each with only its slice visible. Control the radius of each
+    #           additional chart as desired
+    slices = []
+    for ms in MS:
+        added_radius = source.loc[source["Status"] == ms.value, "Added Radius"].values[0]
+        donut_slice = (
+            alt.Chart(source)
+            .mark_arc(innerRadius=innerRadius, outerRadius=innerRadius + added_radius)
+            .encode(
+                theta=alt.Theta("Total Duration (seconds)", stack=True),
+                color="Status:N",
+                opacity=alt.condition(
+                    alt.datum.Status == ms.value,
+                    alt.value(1), alt.value(0)
+                ),
+                tooltip=[
+                    "Total Duration (seconds)",
+                    "Elapsed Duration (seconds)",
+                    "Status",
+                ],
+            )
+        )
+        slices.append(donut_slice)
+
+    # Stack charts and configure
+    layer = (
+        alt.layer(donut, *slices)
+        .configure_title(anchor="middle")
+        .configure_legend(offset=-50, labelLimit=0, symbolOpacity=1)
+    )
+
+    return layer
 
 
 ### Button
@@ -390,6 +437,10 @@ if sim is not None and inputs is not None and sim.valid:
             make_barchart(hydro_field, format_duration(time_min)),
             use_container_width=True,
         )
+        donut = st.altair_chart(
+            make_donutchart(mining_progress, format_duration(time_min)),
+            use_container_width=True,
+        )
 
         step = st.session_state["Simulation Tick Length"]
         if play_fast or play_slow:
@@ -404,6 +455,10 @@ if sim is not None and inputs is not None and sim.valid:
                 )
                 bar.altair_chart(
                     make_barchart(hydro_field, format_duration(time)),
+                    use_container_width=True,
+                )
+                donut.altair_chart(
+                    make_donutchart(mining_progress, format_duration(time)),
                     use_container_width=True,
                 )
                 sleep(0.05 if play_fast else 0.2)
