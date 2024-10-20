@@ -190,9 +190,9 @@ def make_linechart(mining_progress, duration):
     )
 
     max_hydro = (
-        alt.Chart(pd.DataFrame({"y": [21000]}))
+        alt.Chart(pd.DataFrame({"Max Hydro": [21000]}))
         .mark_rule(color="red")
-        .encode(alt.Y("y"))
+        .encode(alt.Y("Max Hydro"))
     )
     cur_dur = (
         alt.Chart(pd.DataFrame({"x": [duration]}))
