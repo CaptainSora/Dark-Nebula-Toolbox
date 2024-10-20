@@ -239,22 +239,37 @@ def make_barchart(hydro_field, duration):
     return bar + rule
 
 def make_donutchart(mining_progress, duration):
-    counter = dict.fromkeys([str(ms) for ms in MS], 0)
-    for ms in mining_progress.drop_duplicates("Time")["Mining Status"]:
-        counter[ms.value] += st.session_state["Simulation Tick Length"]
-    
-    source = pd.DataFrame({
-        "Action": counter.keys(),
-        "Duration (seconds)": counter.values()
-    })
+    mp_unique = mining_progress.drop_duplicates("Time")
+    time = mp_unique.loc[mp_unique.Duration == duration, "Time"].values[0]
+
+    all_actions = (
+        mp_unique
+        .value_counts("Mining Status")
+    )
+    elapsed_actions = (
+        mp_unique[mp_unique["Time"] <= int(time)]
+        .value_counts("Mining Status")
+    )
+
+    index = pd.DataFrame(index=[ms.value for ms in MS])
+    source = (
+        pd.concat([index, all_actions, elapsed_actions], axis=1)
+        .reset_index()
+        .rename(columns={
+            "index": "Status",
+            0: "Total Duration (seconds)",
+            1: "Elapsed Duration (seconds)"
+        })
+        .fillna(value=0)
+    )
 
     donut = (
         alt.Chart(source)
         .mark_arc(innerRadius=50)
         .encode(
-            theta=alt.Theta("Duration (seconds)", stack=True),
-            color="Action:N",
-            opacity=alt.value(0.8)
+            theta=alt.Theta("Total Duration (seconds)", stack=True),
+            color="Status:N",
+            opacity=alt.value(0.8),
         )
         .properties(
             title="Miner Time Spent Breakdown"
