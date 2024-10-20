@@ -44,16 +44,16 @@ class HydroField:
         self._roids = [min(floor(r * enr_mult), H_MAX) for r in self._roids]
         self._collected = [0 for _ in range(MAX_ROIDS)]
 
-    def sort_targets(self) -> list[int]:
+    def sort_rm_targets(self) -> list[int]:
         return [
             idx for idx, value in sorted(
                 enumerate(self._roids), key=lambda x: x[1], reverse=True
             )
         ]
 
-    def collect(self, total_amt: float, targets: Iterable[int]) -> None:
-        amt_per_roid = total_amt / len(targets)
-        for idx in targets:
+    def collect(self, total_amt: float, rm_targets: Iterable[int]) -> None:
+        amt_per_roid = total_amt / len(rm_targets)
+        for idx in rm_targets:
             self._collected[idx] += min(self._roids[idx], amt_per_roid)
             self._roids[idx] -= min(self._roids[idx], amt_per_roid)
 
@@ -82,6 +82,7 @@ class MiningStrategy(ABC):
         self._base_time = 0
         self._base_mining_progress_data = []
         self._base_hydro_field_data = []
+        self._rm_targets = None
         self._mining_delay = 0
         self._max_mining_delay = 2 * self._inputs.genrich_cd
         self._max_time = 40 * MINUTE
@@ -127,7 +128,10 @@ class MiningStrategy(ABC):
     
     def write_hydro_field_data(self) -> None:
         self._hydro_field_data.extend([
-            [self._time, format_duration(self._time), *record]
+            [
+                self._time, format_duration(self._time),
+                self.is_roid_active(record[0]), *record,
+            ]
             for record in self._hf.field_state
         ])
 
@@ -143,18 +147,26 @@ class MiningStrategy(ABC):
     def read_hydro_field_data(self) -> df:
         return df.from_records(
             self._hydro_field_data,
-            columns=["Time", "Duration", "Roid", "Remaining", "Collected"]
+            columns=[
+                "Time", "Duration", "Active", "Roid", "Remaining", "Collected"
+            ]
         ).melt(
             ["Time", "Duration", "Roid"],
             var_name="Status",
             value_name="Hydro"
         )
+    
+    def is_roid_active(self, roid: str) -> bool:
+        rnum = int(roid[1:])
+        return self._status == MS.MINING and rnum in self._rm_targets
 
     def get_mining_delay(self) -> int:
         return self._mining_delay + self._inputs.tick_len
     
-    def get_remote_targets(self) -> list[int]:
-        return self._hf.sort_targets()[:self._inputs.remote_max_targets]
+    def get_new_rm_targets(self) -> None:
+        self._rm_targets = (
+            self._hf.sort_rm_targets()[:self._inputs.remote_max_targets]
+        )
     
     ### Mining components
     def exit_miners(self) -> None:
@@ -192,7 +204,7 @@ class ContinuousMining(MiningStrategy):
         while self._mining_delay < self._max_mining_delay:
             self._reset()
             self._status = MS.GENRICH
-            targets = self.get_remote_targets()
+            self.get_new_rm_targets()
             delay_reference = self._last_genrich
             while self._time < self._max_time:
                 self.tick()
@@ -209,7 +221,7 @@ class ContinuousMining(MiningStrategy):
                             self._tank_max - self._tank
                         )
                         self._tank += total_mined
-                        self._hf.collect(total_mined, targets)
+                        self._hf.collect(total_mined, self._rm_targets)
                     else:
                         self._status = MS.WAITING
                 self.write_all_data()
@@ -218,7 +230,7 @@ class ContinuousMining(MiningStrategy):
                     self._tank -= self._inputs.ab * self._inputs.minerqty
                     self._boosts += self._inputs.minerqty
                     self._last_artboost = self._time
-                    targets = self.get_remote_targets()
+                    self.get_new_rm_targets()
                     self.write_mining_progress_data()
                 # Enrich
                 if self._time >= self._last_genrich + self._inputs.genrich_cd:
