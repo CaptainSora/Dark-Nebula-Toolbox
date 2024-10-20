@@ -151,7 +151,7 @@ class MiningStrategy(ABC):
                 "Time", "Duration", "Active", "Roid", "Remaining", "Collected"
             ]
         ).melt(
-            ["Time", "Duration", "Roid"],
+            ["Time", "Duration", "Active", "Roid"],
             var_name="Status",
             value_name="Hydro"
         )
