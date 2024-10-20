@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file. See the About section at the end for details.
 
 
+## [0.5.0] - 2024-10-20
+
+### User Interface
+- Added advanced settings menu for more control over simulation conditions:
+    - Simulation tick length (to adjust simulation granularity)
+    - Extra delay between enrich cycles (realism)
+    - Extra mining delay after Artifact Boost due to Remote Mining bug (realism)
+    - Time required to fly miners out of DRS (for total time calculation)
+- Added icons to each information box
+- Added a new information box showing total DRS time required
+
+### Visualizations
+- Line chart:
+    - Added background colors which correlate with the current miner status
+- Bar chart:
+    - Highlighted the asteroids which are currently being mined
+- Donut chart:
+    - Added a donut chart to display the breakdown of how time is being spent
+    - Colors match the ones in the line chart
+    - Slices fill up to show elapsed and total time taken
+- Improved consistency of playback speeds
+
+### Simulation
+- Improved realism when Artifact Boost threshold is near miner tank size
+- Fixed a bug which skipped some possible starting times
+
+
 ## [0.4.2] - 2024-09-28
 
 ### Game Data
