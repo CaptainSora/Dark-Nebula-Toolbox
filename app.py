@@ -302,10 +302,15 @@ def make_donutchart(mining_progress, duration):
     #           additional chart as desired
     slices = []
     for ms in MS:
-        added_radius = source.loc[source["Status"] == ms.value, "Added Radius"].values[0]
+        added_radius = (
+            source.loc[source["Status"] == ms.value, "Added Radius"].values[0]
+        )
         donut_slice = (
             alt.Chart(source)
-            .mark_arc(innerRadius=innerRadius, outerRadius=innerRadius + added_radius)
+            .mark_arc(
+                innerRadius=innerRadius,
+                outerRadius=innerRadius + added_radius
+            )
             .encode(
                 theta=alt.Theta("Total Duration (seconds)", stack=True),
                 color="Status:N",
