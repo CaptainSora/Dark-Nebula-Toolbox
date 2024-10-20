@@ -227,7 +227,11 @@ def make_barchart(hydro_field, duration):
                     title="Hydrogen per Asteroid",
                     values=[0, 300, 600, 900, 1200, 1500],
                 ),
-            color="Status"
+            color="Status",
+            opacity=alt.condition(
+                alt.datum.Active == True,
+                alt.value(1), alt.value(0.6)
+            )
         )
     )
 
